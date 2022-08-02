@@ -19,11 +19,11 @@ class PrivacySentryPlugin : Plugin<Project> {
             return
         }
         target.extensions.create("privacy", PrivacyExtension::class.java)
-        var android = target.extensions.getByType(AppExtension::class.java)
+        val android = target.extensions.getByType(AppExtension::class.java)
         // 收集注解信息的任务
-        android?.registerTransform(PrivacyCollectTransform(target))
+        android.registerTransform(PrivacyCollectTransform(target))
 
         // 执行字节码替换的任务
-        android?.registerTransform(PrivacySentryTransform(target))
+        android.registerTransform(PrivacySentryTransform(target))
     }
 }

@@ -98,6 +98,7 @@ class PrivacySentryTransform : Transform {
                         project.logger.info("jar REMOVED file is:" + it.file.absolutePath)
                         GFileUtils.deleteQuietly(output)
                     }
+                    else->{}
                 }
             } else {
                 project.logger.info("jar incremental false file is:" + it.file.absolutePath)
@@ -163,6 +164,7 @@ class PrivacySentryTransform : Transform {
                                 FileUtils.copyFile(inputFile, outputFile)
                             }
                         }
+                        else->{}
                     }
                 }
             } else {
