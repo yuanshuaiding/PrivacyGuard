@@ -305,33 +305,33 @@ open class PrivacyProxyCall {
             return manager.text
         }
 
-//        @PrivacyMethodProxy(
-//            originalClass = ClipboardManager::class,
-//            originalMethod = "setPrimaryClip",
-//            originalOpcode = MethodInvokeOpcode.INVOKEVIRTUAL
-//        )
-//        @JvmStatic
-//        fun setPrimaryClip(manager: ClipboardManager, clip: ClipData) {
-//            doFilePrinter("setPrimaryClip", "设置剪贴板内容-setPrimaryClip")
-//            if (PrivacySentry.Privacy.getBuilder()?.isVisitorModel() == true) {
-//                return
-//            }
-//            manager.setPrimaryClip(clip)
-//        }
-//
-//        @PrivacyMethodProxy(
-//            originalClass = ClipboardManager::class,
-//            originalMethod = "setText",
-//            originalOpcode = MethodInvokeOpcode.INVOKEVIRTUAL
-//        )
-//        @JvmStatic
-//        fun setText(manager: ClipboardManager, clip: CharSequence) {
-//            doFilePrinter("setText", "设置剪贴板内容-setText")
-//            if (PrivacySentry.Privacy.getBuilder()?.isVisitorModel() == true) {
-//                return
-//            }
-//            manager.text = clip
-//        }
+        @PrivacyMethodProxy(
+            originalClass = ClipboardManager::class,
+            originalMethod = "setPrimaryClip",
+            originalOpcode = MethodInvokeOpcode.INVOKEVIRTUAL
+        )
+        @JvmStatic
+        fun setPrimaryClip(manager: ClipboardManager, clip: ClipData) {
+            doFilePrinter("setPrimaryClip", "设置剪贴板内容-setPrimaryClip")
+            if (PrivacySentry.Privacy.getBuilder()?.isVisitorModel() == true) {
+                return
+            }
+            manager.setPrimaryClip(clip)
+        }
+
+        @PrivacyMethodProxy(
+            originalClass = ClipboardManager::class,
+            originalMethod = "setText",
+            originalOpcode = MethodInvokeOpcode.INVOKEVIRTUAL
+        )
+        @JvmStatic
+        fun setText(manager: ClipboardManager, clip: CharSequence) {
+            doFilePrinter("setText", "设置剪贴板内容-setText")
+            if (PrivacySentry.Privacy.getBuilder()?.isVisitorModel() == true) {
+                return
+            }
+            manager.text = clip
+        }
 
         /**
          * WIFI的SSID
