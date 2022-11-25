@@ -3,6 +3,32 @@
     例如游客模式，这种通过xposed\epic只能做检测，毕竟xposed\epic不能带到线上，但是asm可以
     
 ## 更新日志
+    2022-11-15(1.2.3)
+        1. 升级asm至9.1版本
+        2. 支持类替换，主要是为了拦截构造函数的入参，比如对File的访问，这个功能还是试验期，增加了开关hookConstructor
+           详细的配置方法请参考 privacy-replace这个lib
+
+    2022-11-15(1.2.2)
+        1. 放开support androidx目录下的类hook
+        2. 支持权限请求hook(requestPermissions) https://github.com/allenymt/PrivacySentry/issues/75
+        3. 修复部分多线程引起的数据同步问题
+        4. 支持关闭插件的hook功能(感谢runforprogram)
+        
+    2022-11-02(1.2.1)
+        更新的东西有点多，尽量测试和自测
+        1. androidId等不能只做内存缓存，还要磁盘缓存 
+        2. 传感器信息加入到进程级别缓存
+        3. 增加三种缓存，分别是内存缓存，时间单位的磁盘缓存，永久的磁盘缓存
+        4. 设备名加入到不可变字段缓存，类似于Android—id一样
+        5. 扩展存储api，比如位置信息等，wifi参数等，增加拦截sim卡状态，sim卡操作码
+        6. 增加剪切板读取开关，对应到合规库加一个全局开关
+        7. 修复SHA-256 digest error问题， https://github.com/allenymt/PrivacySentry/issues/29
+        8. 修复问题多线程写入问题：https://github.com/allenymt/PrivacySentry/issues/84
+        9. 默认打开游客模式，记得关闭
+
+    2022-08-30(1.1.0)
+        1. 变量hook支持通过注解配置
+        2. 修复不引入privacy-proxy引起的问题
     2022-07-29(1.0.9)
         1. 删除多余的aar引用
     2022-07-26(1.0.8)
@@ -34,10 +60,9 @@
     
 
 
-
 ## TODO
 1. 有其他问题欢迎提issue
-2. 项目里如果有引入高德地图or openInstall，先加黑 blackList = ["com.loc","com.amap.api","io.openinstall.sdk"], asm的版本有冲突
+2. 项目里如果有引入高德地图or openInstall，先加黑 blackList = ["com.loc","com.amap.api","io.openinstall.sdk"]
 3. 动态加载加载的代码无法拦截(热修复，插件化)
 
 ## 如何使用
@@ -54,9 +79,15 @@
 	buildscript {
 	     dependencies {
 	         // 添加插件依赖
-	         classpath 'com.github.allenymt.PrivacySentry:plugin-sentry:1.0.9'
+	         classpath 'com.github.allenymt.PrivacySentry:plugin-sentry:1.2.3'
 	     }
 	}
+	
+	allprojects {
+        repositories {
+            maven { url 'https://jitpack.io' }
+        }
+    }
 ```
 
 
@@ -68,11 +99,14 @@
         
         dependencies {
             // aar依赖
-            def privacyVersion = "1.0.9"
+            def privacyVersion = "1.2.3"
             implementation "com.github.allenymt.PrivacySentry:hook-sentry:$privacyVersion"
             implementation "com.github.allenymt.PrivacySentry:privacy-annotation:$privacyVersion"
-	    //如果不想使用库中本身的代理方法，可以不引入这个aar，自己实现
+	        //如果不想使用库中本身的代理方法，可以不引入这个aar，自己实现
+	        //也可以引入，个别方法在自己的类中重写即可
             implementation "com.github.allenymt.PrivacySentry:privacy-proxy:$privacyVersion"
+            // 1.2.3 新增类替换，主要是为了hook构造函数的参数
+            implementation "com.github.allenymt.PrivacySentry:privacy-replace:$privacyVersion"
         }
         
         // 黑名单配置，可以设置这部分包名不会被修改字节码
@@ -81,6 +115,12 @@
         privacy {
             blackList = []
             replaceFileName = "replace.json"
+	        // 开启hook反射
+    	    hookReflex = true
+    	    // debug编译默认开启，支持关闭，感谢run的pr
+    	    debugEnable = true
+    	    // 开启hook 替换类，目前支持file
+            hookConstructor = true
         }
 
 ```
@@ -188,6 +228,46 @@ open class PrivacyProxyResolver {
 ```
 
 
+```
+    如何配置替换一个类
+    可以参考源码中PrivacyFile的配置，使用PrivacyClassReplace注解，originClass代表你要替换的类，注意要继承originClass的所有构造函数
+    可以配置 hookConstructor = false关闭这个功能
+/**
+ * @author yulun
+ * @since 2022-11-18 15:01
+ * 代理File的构造方法，如果是自定义的file类，需要业务方单独配置自行处理
+ */
+@PrivacyClassReplace(originClass = File.class)
+public class PrivacyFile extends File {
+
+    public PrivacyFile(@NonNull String pathname) {
+        super(pathname);
+        record(pathname);
+    }
+
+    public PrivacyFile(@Nullable String parent, @NonNull String child) {
+        super(parent, child);
+        record(parent + child);
+    }
+
+    public PrivacyFile(@Nullable File parent, @NonNull String child) {
+        super(parent, child);
+        record(parent.getPath() + child);
+    }
+
+    public PrivacyFile(@NonNull URI uri) {
+        super(uri);
+        record(uri.toString());
+    }
+
+    private void record(String path) {
+        PrivacyProxyUtil.Util.INSTANCE.doFilePrinter("PrivacyFile", "访问文件", "path is " + path, PrivacySentry.Privacy.INSTANCE.getBuilder().isVisitorModel(), false);
+    }
+}
+
+
+```
+
 
 ## 隐私方法调用结果产出
 -     支持hook调用堆栈至文件，默认的时间为1分钟，支持自定义设置时间。
@@ -204,13 +284,17 @@ open class PrivacyProxyResolver {
 
 支持hook以下功能函数：
 
+- 支持敏感字段缓存(磁盘缓存、带有时间限制的磁盘缓存、内存缓存)
+
+- hook替换类 (构造函数)
+
 - 当前运行进程和任务
 
 - 系统剪贴板服务
 
 - 读取设备应用列表
 
-- 读取 Android SN(Serial,包括方法和变量)
+- 读取 Android SN(Serial,包括方法和变量)，系统设备号
 
 - 读写联系人、日历、本机号码
 
@@ -220,7 +304,9 @@ open class PrivacyProxyResolver {
 
 - 读取 IMEI(DeviceId)、MEID、IMSI、ADID(AndroidID)
 
-- 手机可用传感器,传感器注册
+- 手机可用传感器,传感器注册，传感器列表
+
+- 权限请求
 
 
 

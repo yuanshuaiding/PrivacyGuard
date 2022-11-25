@@ -2,6 +2,7 @@ package com.yl.lib.privacysentry.contact
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
@@ -9,6 +10,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.yl.lib.privacysentry.R
 import com.yl.lib.privacysentry.calendar.CalendarTest
+import com.yl.lib.privacysentry.test.TestReflex
 import com.yl.lib.sentry.hook.util.PrivacyLog
 
 class ContactActivity : AppCompatActivity() {
@@ -33,13 +35,22 @@ class ContactActivity : AppCompatActivity() {
                 Manifest.permission.WRITE_CONTACTS
             ) !== PackageManager.PERMISSION_GRANTED
         ) {
-            ActivityCompat.requestPermissions(
-                this, arrayOf<String>(
-                    Manifest.permission.WRITE_CONTACTS,
-                    Manifest.permission.READ_CONTACTS,
-                    Manifest.permission.READ_CALL_LOG
-                ), 1000
+
+            var permissions = arrayOf<String>(
+                Manifest.permission.WRITE_CONTACTS,
+                Manifest.permission.READ_CONTACTS,
+                Manifest.permission.READ_CALL_LOG
             )
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                super.requestPermissions(
+                     arrayOf<String>(
+                        Manifest.permission.WRITE_CONTACTS,
+                        Manifest.permission.READ_CONTACTS,
+                        Manifest.permission.READ_CALL_LOG
+                    ), 1000
+                )
+            }
         }
     }
 

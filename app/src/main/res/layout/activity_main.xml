@@ -13,7 +13,9 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp">
 
             <Button
                 android:id="@+id/btn_androidId"
@@ -21,36 +23,13 @@
                 android:layout_height="wrap_content"
                 android:text="测试AndroidId" />
 
-            <Button
-                android:id="@+id/btn_deviceId"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="测试DeviceId" />
-
-
-            <Button
-                android:id="@+id/btn_imei"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="测试Imei" />
-
-            <Button
-                android:id="@+id/btn_imsi"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="测试Imsi" />
 
             <Button
                 android:id="@+id/btn_mac_address"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="测试mac地址" />
+                android:text="测试mac地址和IP地址" />
 
-            <Button
-                android:id="@+id/btn_iccid"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="测试sim卡唯一标识符" />
 
             <Button
                 android:id="@+id/btn_installed_packages"
@@ -63,6 +42,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="判断主进程，跳过当前敏感函数" />
+
+            <Button
+                android:id="@+id/btn_clipboard_readable"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="设置系统剪贴板开关" />
 
             <Button
                 android:id="@+id/btn_test_cms"
@@ -94,17 +79,7 @@
                 android:layout_height="wrap_content"
                 android:text="测试Android SN" />
 
-            <Button
-                android:id="@+id/btn_to_calender"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="跳转日历测试Ac" />
 
-            <Button
-                android:id="@+id/btn_to_contact"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="跳转联系人测试Ac" />
 
             <Button
                 android:id="@+id/btn_thread_cache"
@@ -119,11 +94,59 @@
                 android:text="注册传感器" />
 
             <Button
+                android:id="@+id/btn_test_get_all_sensor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="获取传感器列表" />
+
+            <Button
+                android:id="@+id/btn_test_ExternalStorageDirectory"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="获取SD卡根路径" />
+
+            <Button
+                android:id="@+id/btn_test_reflex"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="测试反射" />
+
+
+            <Button
+                android:id="@+id/btn_to_telephony"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="跳转Telephony页面" />
+
+            <Button
+                android:id="@+id/btn_to_calender"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="跳转日历测试Ac" />
+
+            <Button
+                android:id="@+id/btn_to_contact"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="跳转联系人测试Ac" />
+
+            <Button
+                android:id="@+id/btn_to_location"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="跳转定位测试页面" />
+
+            <Button
+                android:id="@+id/btn_to_fragment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="跳转fragment申请权限页面" />
+
+            <Button
                 android:id="@+id/btn_force_finish"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="结束当前检测-导出结果" />
-
 
 
         </LinearLayout>

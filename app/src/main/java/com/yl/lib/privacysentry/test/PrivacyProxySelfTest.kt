@@ -1,11 +1,12 @@
-package com.yl.lib.privacysentry
+package com.yl.lib.privacysentry.test
 
 import android.app.ActivityManager
 import androidx.annotation.Keep
 import com.yl.lib.privacy_annotation.MethodInvokeOpcode
 import com.yl.lib.privacy_annotation.PrivacyClassProxy
 import com.yl.lib.privacy_annotation.PrivacyMethodProxy
-import com.yl.lib.sentry.hook.util.PrivacyProxyUtil.Util.doFilePrinter
+import com.yl.lib.sentry.hook.util.PrivacyLog
+import java.net.HttpURLConnection
 
 /**
  * @author yulun
@@ -28,8 +29,19 @@ class PrivacyProxySelfTest {
             manager: ActivityManager,
             maxNum: Int
         ): List<ActivityManager.RunningTaskInfo?>? {
-           doFilePrinter("getRunningTasks", "获取当前运行中的任务", "")
             return manager.getRunningTasks(maxNum)
+        }
+
+
+        @PrivacyMethodProxy(
+            originalClass = HttpURLConnection::class,
+            originalMethod = "connect",
+            originalOpcode = MethodInvokeOpcode.INVOKEVIRTUAL
+        )
+        @JvmStatic
+        fun connect(httpURLConnection: HttpURLConnection) {
+            PrivacyLog.i("HttpURLConnection connect")
+            httpURLConnection.connect()
         }
     }
 }

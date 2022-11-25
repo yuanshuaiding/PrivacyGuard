@@ -1,4 +1,4 @@
-package com.yl.lib.privacysentry
+package com.yl.lib.privacysentry.test
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -12,44 +12,25 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
-import android.database.Cursor
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventCallback
+import android.hardware.SensorManager
 import android.net.wifi.WifiManager
 import android.os.Build
-import android.provider.ContactsContract
+import android.os.Environment
 import android.provider.Settings
 import android.telephony.TelephonyManager
 import android.text.TextUtils
 import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import com.yl.lib.privacysentry.MainActivity
+import com.yl.lib.sentry.hook.util.PrivacyLog
+import java.io.File
 import java.net.NetworkInterface
 import java.net.SocketException
 import java.util.*
-import android.content.ContentProviderResult
-
-import android.provider.ContactsContract.CommonDataKinds.Email
-
-import android.content.ContentProviderOperation
-
-import android.provider.ContactsContract.CommonDataKinds.Phone
-
-import android.provider.ContactsContract.CommonDataKinds.StructuredName
-
-import android.provider.ContactsContract.RawContacts
-
-import android.content.ContentUris
-
-import android.content.ContentValues
-
-import android.content.ContentResolver
-import android.hardware.Sensor
-import android.hardware.SensorEvent
-import android.hardware.SensorEventCallback
-import android.hardware.SensorManager
-import android.net.Uri
-import android.util.Log
-import com.yl.lib.sentry.hook.util.PrivacyLog
-import java.lang.StringBuilder
 
 
 /**
@@ -193,6 +174,51 @@ class PrivacyMethod {
             return imsi ?: ""
         }
 
+        fun getIp(context: Context) {
+            var ip1 = TestInJava.getHostIp()
+            PrivacyLog.i("ip1 is $ip1")
+            Thread {
+                var ip2 = TestInJava.getIpAddress(context)
+                PrivacyLog.i(" ip2 is $ip2")
+            }.start()
+        }
+
+
+        // 获取sim卡操作码
+        fun getSimOperator(context: Context?): String? {
+            if (context == null) {
+                return ""
+            }
+            var simOperator = ""
+            try {
+
+                val mTelephonyMgr = context
+                    .getSystemService(AppCompatActivity.TELEPHONY_SERVICE) as TelephonyManager
+                simOperator =
+                    mTelephonyMgr.simOperator
+            } catch (e: Throwable) {
+                e.printStackTrace()
+            }
+            return simOperator
+        }
+
+        fun getNetworkOperator(context: Context?): String? {
+            if (context == null) {
+                return ""
+            }
+            var networkOperator = ""
+            try {
+
+                val mTelephonyMgr = context
+                    .getSystemService(AppCompatActivity.TELEPHONY_SERVICE) as TelephonyManager
+                networkOperator =
+                    mTelephonyMgr.networkOperator
+            } catch (e: Throwable) {
+                e.printStackTrace()
+            }
+            return networkOperator
+        }
+
         /**
          * 获取sim卡唯一标示
          *
@@ -292,12 +318,15 @@ class PrivacyMethod {
             }
             return ""
         }
+
+
         private fun checkPermissions(context: Context, permission: String): Boolean {
-            val localPackageManager = context.packageManager ?: return false
-            return localPackageManager.checkPermission(
-                permission,
-                context.packageName
-            ) == PackageManager.PERMISSION_GRANTED
+//            val localPackageManager = context.packageManager ?: return false
+//            return localPackageManager.checkPermission(
+//                permission,
+//                context.packageName
+//            ) == PackageManager.PERMISSION_GRANTED
+            return true
         }
 
 
@@ -340,6 +369,27 @@ class PrivacyMethod {
                     MainActivity::javaClass.javaClass
                 ), 0
             )).isNotEmpty()
+        }
+
+        fun isInstalled3(
+            context: Application,
+            pkgName: String
+        ): Boolean {
+            if (TextUtils.isEmpty(pkgName)) {
+                return false
+            }
+            // 获取所有已安装程序的包信息
+            val packageManager = context.packageManager
+            try {
+                var info = packageManager.getPackageInfo(
+                    pkgName, 0
+                )
+                return info != null
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+
+            return false
         }
 
         fun queryActivityInfo(
@@ -409,21 +459,26 @@ class PrivacyMethod {
         }
 
         //读取 Android SN(Serial)
-        fun getSerial():String{
+        fun getSerial(): String {
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                android.os.Build.getSerial()
+                try {
+                    android.os.Build.getSerial()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    return ""
+                }
             } else {
                 android.os.Build.SERIAL
             }
         }
 
-        fun  testSensor(context:Context){
+        fun testSensor(context: Context) {
             var sensorManager: SensorManager? = null
             var callback: SensorEventCallback? = null
             // 摇一摇注册
             // 摇一摇注册
             sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
-            var sensor: Sensor?  = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+            var sensor: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
             // 获得重力传感器
             sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
@@ -477,6 +532,63 @@ class PrivacyMethod {
                     )
                 }
             }
+        }
+
+        fun testGetSensorList(context: Context) {
+            var sensorManager: SensorManager? =
+                context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+            // 获取传感器列表
+            var sensor: List<Sensor>? = sensorManager?.getSensorList(Sensor.TYPE_ACCELEROMETER)
+            PrivacyLog.i("sensor size is :${sensor?.size}")
+        }
+
+        /**
+         * 返回SD卡根路径
+         *
+         * @return
+         */
+        fun getSdcardRoot(context: Context): String? {
+            var path: String? = null
+            if (isSdcardReady()
+                && hasExternalStoragePermission(context)
+            ) {
+                val sdDir = Environment.getExternalStorageDirectory()
+                path = sdDir.absolutePath
+            }
+            var newPath = getPath(context)
+            return path
+        }
+
+        fun isSdcardReady(): Boolean {
+            return Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED
+        }
+
+        fun getPath(context: Context): String? {
+            var dir: File? = null
+            val state = Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED
+            dir = if (state) {
+                if (Build.VERSION.SDK_INT >= 29) {
+                    //Android10之后
+                    context.getExternalFilesDir(null)
+                } else {
+                    Environment.getExternalStorageDirectory()
+                }
+            } else {
+                Environment.getRootDirectory()
+            }
+            return dir.toString()
+        }
+
+        /**
+         * 是否有写扩展存储的权限
+         *
+         * @param context
+         * @return
+         */
+        fun hasExternalStoragePermission(context: Context): Boolean {
+            val perm =
+                context.checkCallingOrSelfPermission("android.permission.WRITE_EXTERNAL_STORAGE")
+            return perm == PackageManager.PERMISSION_GRANTED
         }
     }
 }
