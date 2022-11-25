@@ -33,6 +33,8 @@ class PrivacySentryBuilder {
     // 可以拦截读取系统剪贴板
     private var enableReadClipBoard: Boolean = true
 
+    private var forbiddenAPIs = mutableListOf<String>()
+
     constructor() {
         addPrinter(DefaultLogPrint())
     }
@@ -104,6 +106,19 @@ class PrivacySentryBuilder {
 
     fun isVisitorModel(): Boolean {
         return visitorModel
+    }
+
+    fun addForbiddenAPI(method: String): PrivacySentryBuilder {
+        if (forbiddenAPIs == null) {
+            forbiddenAPIs = mutableListOf()
+        }
+        forbiddenAPIs.add(method)
+        return this
+    }
+
+    fun isForbiddenAPI(method: String): Boolean {
+        if (forbiddenAPIs.isNullOrEmpty()) return false
+        return forbiddenAPIs.contains(method)
     }
 
     fun enableFileResult(enableFileResult: Boolean): PrivacySentryBuilder {

@@ -109,7 +109,8 @@ open class PrivacySensorProxy {
         @JvmStatic
         fun getSensorList(sensorManager: SensorManager?, type: Int): List<Sensor>? {
             var logPair = transformSensorTypeToString(type)
-            if (PrivacySentry.Privacy.getBuilder()?.isVisitorModel() == true) {
+            if (PrivacySentry.Privacy.getBuilder()?.isVisitorModel() == true|| PrivacySentry.Privacy.getBuilder()
+                    ?.isForbiddenAPI("getSensorList") == true) {
                 PrivacyProxyUtil.Util.doFilePrinter(
                     "getSensorList-$type",
                     "获取${logPair.first}-${logPair.second}",

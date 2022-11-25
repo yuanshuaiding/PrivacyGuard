@@ -60,7 +60,10 @@ open class PrivacyProxyCall {
             maxNum: Int
         ): List<ActivityManager.RunningTaskInfo?>? {
             doFilePrinter("getRunningTasks", methodDocumentDesc = "当前运行中的任务")
-            if (PrivacySentry.Privacy.getBuilder()?.isVisitorModel() == true) {
+            if (PrivacySentry.Privacy.getBuilder()
+                    ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
+                    ?.isForbiddenAPI("getRunningTasks") == true
+            ) {
                 return emptyList()
             }
             return manager.getRunningTasks(maxNum)
@@ -78,7 +81,10 @@ open class PrivacyProxyCall {
             flags: Int
         ): List<ActivityManager.RecentTaskInfo>? {
             doFilePrinter("getRecentTasks", methodDocumentDesc = "最近运行中的任务")
-            if (PrivacySentry.Privacy.getBuilder()?.isVisitorModel() == true) {
+            if (PrivacySentry.Privacy.getBuilder()
+                    ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
+                    ?.isForbiddenAPI("getRecentTasks") == true
+            ) {
                 return emptyList()
             }
             return manager.getRecentTasks(maxNum, flags)
@@ -93,7 +99,10 @@ open class PrivacyProxyCall {
         @JvmStatic
         fun getRunningAppProcesses(manager: ActivityManager): List<ActivityManager.RunningAppProcessInfo> {
             doFilePrinter("getRunningAppProcesses", methodDocumentDesc = "当前运行中的进程")
-            if (PrivacySentry.Privacy.getBuilder()?.isVisitorModel() == true) {
+            if (PrivacySentry.Privacy.getBuilder()
+                    ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
+                    ?.isForbiddenAPI("getRunningAppProcesses") == true
+            ) {
                 return emptyList()
             }
 
@@ -115,7 +124,10 @@ open class PrivacyProxyCall {
         @JvmStatic
         fun getInstalledPackages(manager: PackageManager, flags: Int): List<PackageInfo> {
             doFilePrinter("getInstalledPackages", methodDocumentDesc = "安装包-getInstalledPackages")
-            if (PrivacySentry.Privacy.getBuilder()?.isVisitorModel() == true) {
+            if (PrivacySentry.Privacy.getBuilder()
+                    ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
+                    ?.isForbiddenAPI("getInstalledPackages") == true
+            ) {
                 return emptyList()
             }
             return manager.getInstalledPackages(flags)
@@ -133,7 +145,10 @@ open class PrivacyProxyCall {
             flags: Int
         ): PackageInfo? {
 
-            if (PrivacySentry.Privacy.getBuilder()?.isVisitorModel() == true) {
+            if (PrivacySentry.Privacy.getBuilder()
+                    ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
+                    ?.isForbiddenAPI("getPackageInfo") == true
+            ) {
                 doFilePrinter(
                     "getPackageInfo",
                     methodDocumentDesc = "安装包-getPackageInfo",
@@ -159,7 +174,10 @@ open class PrivacyProxyCall {
             packageName: String,
             flags: Int
         ): PackageInfo? {
-            if (PrivacySentry.Privacy.getBuilder()?.isVisitorModel() == true) {
+            if (PrivacySentry.Privacy.getBuilder()
+                    ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
+                    ?.isForbiddenAPI("getPackageInfo") == true
+            ) {
                 doFilePrinter(
                     "getPackageInfo",
                     methodDocumentDesc = "安装包-getPackageInfo-${packageName}",
@@ -203,7 +221,10 @@ open class PrivacyProxyCall {
                 "getInstalledApplications",
                 methodDocumentDesc = "安装包-getInstalledApplications"
             )
-            if (PrivacySentry.Privacy.getBuilder()?.isVisitorModel() == true) {
+            if (PrivacySentry.Privacy.getBuilder()
+                    ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
+                    ?.isForbiddenAPI("getInstalledApplications") == true
+            ) {
                 return emptyList()
             }
             return manager.getInstalledApplications(flags)
@@ -272,7 +293,10 @@ open class PrivacyProxyCall {
                 "queryIntentActivities",
                 methodDocumentDesc = "读安装列表-queryIntentActivities${paramBuilder?.toString()}"
             )
-            if (PrivacySentry.Privacy.getBuilder()?.isVisitorModel() == true) {
+            if (PrivacySentry.Privacy.getBuilder()
+                    ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
+                    ?.isForbiddenAPI("queryIntentActivities") == true
+            ) {
                 return emptyList()
             }
             return manager.queryIntentActivities(intent, flags)
@@ -295,7 +319,10 @@ open class PrivacyProxyCall {
                 "queryIntentActivityOptions",
                 methodDocumentDesc = "读安装列表-queryIntentActivityOptions"
             )
-            if (PrivacySentry.Privacy.getBuilder()?.isVisitorModel() == true) {
+            if (PrivacySentry.Privacy.getBuilder()
+                    ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
+                    ?.isForbiddenAPI("queryIntentActivityOptions") == true
+            ) {
                 return emptyList()
             }
             return manager.queryIntentActivityOptions(caller, specifics, intent, flags)
@@ -314,7 +341,10 @@ open class PrivacyProxyCall {
         )
         fun getAllCellInfo(manager: TelephonyManager): List<CellInfo>? {
             doFilePrinter("getAllCellInfo", methodDocumentDesc = "定位-基站信息")
-            if (PrivacySentry.Privacy.getBuilder()?.isVisitorModel() == true) {
+            if (PrivacySentry.Privacy.getBuilder()
+                    ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
+                    ?.isForbiddenAPI("getAllCellInfo") == true
+            ) {
                 return emptyList()
             }
             return manager.getAllCellInfo()
@@ -327,7 +357,10 @@ open class PrivacyProxyCall {
         )
         @JvmStatic
         fun getPrimaryClip(manager: ClipboardManager): ClipData? {
-            if (PrivacySentry.Privacy.getBuilder()?.isVisitorModel() == true) {
+            if (PrivacySentry.Privacy.getBuilder()
+                    ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
+                    ?.isForbiddenAPI("getPrimaryClip") == true
+            ) {
                 return ClipData.newPlainText("Label", "")
             }
             if (!PrivacyClipBoardManager.isReadClipboardEnable()) {
@@ -346,7 +379,10 @@ open class PrivacyProxyCall {
         )
         @JvmStatic
         fun getPrimaryClipDescription(manager: ClipboardManager): ClipDescription? {
-            if (PrivacySentry.Privacy.getBuilder()?.isVisitorModel() == true) {
+            if (PrivacySentry.Privacy.getBuilder()
+                    ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
+                    ?.isForbiddenAPI("getPrimaryClipDescription") == true
+            ) {
                 return ClipDescription("", arrayOf(MIMETYPE_TEXT_PLAIN))
             }
 
@@ -367,7 +403,10 @@ open class PrivacyProxyCall {
         @JvmStatic
         fun getText(manager: ClipboardManager): CharSequence? {
 
-            if (PrivacySentry.Privacy.getBuilder()?.isVisitorModel() == true) {
+            if (PrivacySentry.Privacy.getBuilder()
+                    ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
+                    ?.isForbiddenAPI("getText") == true
+            ) {
                 return ""
             }
 
@@ -387,7 +426,10 @@ open class PrivacyProxyCall {
         @JvmStatic
         fun setPrimaryClip(manager: ClipboardManager, clip: ClipData) {
             doFilePrinter("setPrimaryClip", "设置剪贴板内容-setPrimaryClip")
-            if (PrivacySentry.Privacy.getBuilder()?.isVisitorModel() == true) {
+            if (PrivacySentry.Privacy.getBuilder()
+                    ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
+                    ?.isForbiddenAPI("setPrimaryClip") == true
+            ) {
                 return
             }
             manager.setPrimaryClip(clip)
@@ -401,7 +443,10 @@ open class PrivacyProxyCall {
         @JvmStatic
         fun setText(manager: ClipboardManager, clip: CharSequence) {
             doFilePrinter("setText", "设置剪贴板内容-setText")
-            if (PrivacySentry.Privacy.getBuilder()?.isVisitorModel() == true) {
+            if (PrivacySentry.Privacy.getBuilder()
+                    ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
+                    ?.isForbiddenAPI("setText") == true
+            ) {
                 return
             }
             manager.text = clip
@@ -417,7 +462,10 @@ open class PrivacyProxyCall {
             originalOpcode = MethodInvokeOpcode.INVOKEVIRTUAL
         )
         fun getSSID(manager: WifiInfo): String? {
-            if (PrivacySentry.Privacy.getBuilder()?.isVisitorModel() == true) {
+            if (PrivacySentry.Privacy.getBuilder()
+                    ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
+                    ?.isForbiddenAPI("getSSID") == true
+            ) {
                 doFilePrinter("getSSID", "SSID", bVisitorModel = true)
                 return ""
             }
@@ -444,7 +492,10 @@ open class PrivacyProxyCall {
         )
         fun getBSSID(manager: WifiInfo): String? {
 
-            if (PrivacySentry.Privacy.getBuilder()?.isVisitorModel() == true) {
+            if (PrivacySentry.Privacy.getBuilder()
+                    ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
+                    ?.isForbiddenAPI("getBSSID") == true
+            ) {
                 doFilePrinter("getBSSID", "getBSSID", bVisitorModel = true)
                 return ""
             }
@@ -470,7 +521,10 @@ open class PrivacyProxyCall {
             originalOpcode = MethodInvokeOpcode.INVOKEVIRTUAL
         )
         fun getScanResults(manager: WifiManager): List<ScanResult>? {
-            if (PrivacySentry.Privacy.getBuilder()?.isVisitorModel() == true) {
+            if (PrivacySentry.Privacy.getBuilder()
+                    ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
+                    ?.isForbiddenAPI("getScanResults") == true
+            ) {
                 doFilePrinter("getScanResults", "WIFI扫描结果", bVisitorModel = true)
                 return emptyList()
             }
@@ -494,7 +548,10 @@ open class PrivacyProxyCall {
             originalOpcode = MethodInvokeOpcode.INVOKEVIRTUAL
         )
         fun isWifiEnabled(manager: WifiManager): Boolean {
-            if (PrivacySentry.Privacy.getBuilder()?.isVisitorModel() == true) {
+            if (PrivacySentry.Privacy.getBuilder()
+                    ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
+                    ?.isForbiddenAPI("isWifiEnabled") == true
+            ) {
                 doFilePrinter("isWifiEnabled", "读取WiFi状态", bVisitorModel = true)
                 return true
             }
@@ -520,7 +577,10 @@ open class PrivacyProxyCall {
         )
         fun getDhcpInfo(manager: WifiManager): DhcpInfo? {
             doFilePrinter("getDhcpInfo", "DHCP地址")
-            if (PrivacySentry.Privacy.getBuilder()?.isVisitorModel() == true) {
+            if (PrivacySentry.Privacy.getBuilder()
+                    ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
+                    ?.isForbiddenAPI("getDhcpInfo") == true
+            ) {
                 return null
             }
             return manager.getDhcpInfo()
@@ -538,7 +598,10 @@ open class PrivacyProxyCall {
         )
         fun getConfiguredNetworks(manager: WifiManager): List<WifiConfiguration>? {
             doFilePrinter("getConfiguredNetworks", "前台用户配置的所有网络的列表")
-            if (PrivacySentry.Privacy.getBuilder()?.isVisitorModel() == true) {
+            if (PrivacySentry.Privacy.getBuilder()
+                    ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
+                    ?.isForbiddenAPI("getConfiguredNetworks") == true
+            ) {
                 return emptyList()
             }
             return manager.getConfiguredNetworks()
@@ -559,8 +622,11 @@ open class PrivacyProxyCall {
             manager: LocationManager, provider: String
         ): Location? {
             var key = "getLastKnownLocation"
-            if (PrivacySentry.Privacy.getBuilder()?.isVisitorModel() == true) {
-                doFilePrinter("getLastKnownLocation", "上一次的位置信息", bVisitorModel =  true)
+            if (PrivacySentry.Privacy.getBuilder()
+                    ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
+                    ?.isForbiddenAPI("getLastKnownLocation") == true
+            ) {
+                doFilePrinter("getLastKnownLocation", "上一次的位置信息", bVisitorModel = true)
                 // 这里直接写空可能有风险
                 return null
             }
@@ -591,7 +657,10 @@ open class PrivacyProxyCall {
             listener: LocationListener
         ) {
             doFilePrinter("requestLocationUpdates", "监视精细行动轨迹")
-            if (PrivacySentry.Privacy.getBuilder()?.isVisitorModel() == true) {
+            if (PrivacySentry.Privacy.getBuilder()
+                    ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
+                    ?.isForbiddenAPI("requestLocationUpdates") == true
+            ) {
                 return
             }
             manager.requestLocationUpdates(provider, minTime, minDistance, listener)
@@ -614,7 +683,10 @@ open class PrivacyProxyCall {
         fun getMacAddress(manager: WifiInfo): String? {
             var key = "WifiInfo-getMacAddress"
 
-            if (PrivacySentry.Privacy.getBuilder()?.isVisitorModel() == true) {
+            if (PrivacySentry.Privacy.getBuilder()
+                    ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
+                    ?.isForbiddenAPI("getMacAddress") == true
+            ) {
                 doFilePrinter(
                     key,
                     "mac地址-getMacAddress",
@@ -642,7 +714,10 @@ open class PrivacyProxyCall {
         fun getHardwareAddress(manager: NetworkInterface): ByteArray? {
             var key = "NetworkInterface-getHardwareAddress"
 
-            if (PrivacySentry.Privacy.getBuilder()?.isVisitorModel() == true) {
+            if (PrivacySentry.Privacy.getBuilder()
+                    ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
+                    ?.isForbiddenAPI("getHardwareAddress") == true
+            ) {
                 doFilePrinter(
                     key,
                     "mac地址-getHardwareAddress",
@@ -670,7 +745,10 @@ open class PrivacyProxyCall {
         fun getAddress(manager: BluetoothAdapter): String? {
             var key = "BluetoothAdapter-getAddress"
 
-            if (PrivacySentry.Privacy.getBuilder()?.isVisitorModel() == true) {
+            if (PrivacySentry.Privacy.getBuilder()
+                    ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
+                    ?.isForbiddenAPI("getAddress") == true
+            ) {
                 doFilePrinter(key, "蓝牙地址-getAddress", bVisitorModel = true)
                 return ""
             }
@@ -693,12 +771,18 @@ open class PrivacyProxyCall {
         fun getAddress(manager: Inet4Address): ByteArray? {
             var key = "ip地址-getAddress"
 
-            if (PrivacySentry.Privacy.getBuilder()?.isVisitorModel() == true) {
+            if (PrivacySentry.Privacy.getBuilder()
+                    ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
+                    ?.isForbiddenAPI("getAddress") == true
+            ) {
                 doFilePrinter(key, "ip地址-getAddress", bVisitorModel = true)
                 return ByteArray(1)
             }
             var address = manager.address
-            doFilePrinter(key, "ip地址-getAddress-${manager.hostName ?: ""} , address is ${address ?: ""}")
+            doFilePrinter(
+                key,
+                "ip地址-getAddress-${manager.hostName ?: ""} , address is ${address ?: ""}"
+            )
             return address
         }
 
@@ -711,12 +795,18 @@ open class PrivacyProxyCall {
         fun getAddress(manager: InetAddress): ByteArray? {
             var key = "ip地址-getAddress"
 
-            if (PrivacySentry.Privacy.getBuilder()?.isVisitorModel() == true) {
+            if (PrivacySentry.Privacy.getBuilder()
+                    ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
+                    ?.isForbiddenAPI("getAddress") == true
+            ) {
                 doFilePrinter(key, "ip地址-getAddress", bVisitorModel = true)
                 return ByteArray(1)
             }
             var address = manager.address
-            doFilePrinter(key, "ip地址-getAddress-${manager.hostName ?: ""} , address is ${address ?: ""} ")
+            doFilePrinter(
+                key,
+                "ip地址-getAddress-${manager.hostName ?: ""} , address is ${address ?: ""} "
+            )
             return address
         }
 
@@ -729,13 +819,19 @@ open class PrivacyProxyCall {
         fun getHostAddress(manager: Inet4Address): String? {
             var key = "ip地址-getHostAddress"
 
-            if (PrivacySentry.Privacy.getBuilder()?.isVisitorModel() == true) {
+            if (PrivacySentry.Privacy.getBuilder()
+                    ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
+                    ?.isForbiddenAPI("getHostAddress") == true
+            ) {
                 doFilePrinter(key, "ip地址-getHostAddress", bVisitorModel = true)
                 return ""
             }
 
             var address = manager.hostAddress
-            doFilePrinter(key, "ip地址-getHostAddress-${manager.hostName ?: ""} , address is ${address ?: ""}")
+            doFilePrinter(
+                key,
+                "ip地址-getHostAddress-${manager.hostName ?: ""} , address is ${address ?: ""}"
+            )
             return address
         }
 
@@ -745,16 +841,22 @@ open class PrivacyProxyCall {
             originalOpcode = MethodInvokeOpcode.INVOKEVIRTUAL
         )
         @JvmStatic
-        fun getHostAddress(manager: InetAddress): String?{
+        fun getHostAddress(manager: InetAddress): String? {
             var key = "ip地址-getHostAddress"
 
-            if (PrivacySentry.Privacy.getBuilder()?.isVisitorModel() == true) {
+            if (PrivacySentry.Privacy.getBuilder()
+                    ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
+                    ?.isForbiddenAPI("getHostAddress") == true
+            ) {
                 doFilePrinter(key, "ip地址-getHostAddress", bVisitorModel = true)
                 return ""
             }
 
             var address = manager.hostAddress
-            doFilePrinter(key, "ip地址-getHostAddress-${manager.hostName ?: ""} , address is ${address ?: ""}")
+            doFilePrinter(
+                key,
+                "ip地址-getHostAddress-${manager.hostName ?: ""} , address is ${address ?: ""}"
+            )
             return address
         }
 
@@ -772,7 +874,10 @@ open class PrivacyProxyCall {
                     type
                 )
             }
-            if (PrivacySentry.Privacy.getBuilder()?.isVisitorModel() == true) {
+            if (PrivacySentry.Privacy.getBuilder()
+                    ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
+                    ?.isForbiddenAPI("getString") == true
+            ) {
                 doFilePrinter(
                     "getString",
                     "系统信息",
@@ -815,7 +920,10 @@ open class PrivacyProxyCall {
         fun getSerial(): String? {
             var result = ""
             var key = "getSerial"
-            if (PrivacySentry.Privacy.getBuilder()?.isVisitorModel() == true) {
+            if (PrivacySentry.Privacy.getBuilder()
+                    ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
+                    ?.isForbiddenAPI("getSerial") == true
+            ) {
                 doFilePrinter("getSerial", "Serial", bVisitorModel = true)
                 return ""
             }
@@ -843,7 +951,10 @@ open class PrivacyProxyCall {
         fun getExternalStorageDirectory(): File? {
             var result: File? = null
             var key = "externalStorageDirectory"
-            if (PrivacySentry.Privacy.getBuilder()?.isVisitorModel() == true) {
+            if (PrivacySentry.Privacy.getBuilder()
+                    ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
+                    ?.isForbiddenAPI("getExternalStorageDirectory") == true
+            ) {
                 doFilePrinter("getExternalStorageDirectory", key, bVisitorModel = true)
             }
             synchronized(objectExternalStorageDirectoryLock) {
