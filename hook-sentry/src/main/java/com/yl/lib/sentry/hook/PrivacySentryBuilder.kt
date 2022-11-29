@@ -30,6 +30,12 @@ class PrivacySentryBuilder {
     // 游客模式，拦截所有敏感方法
     private var visitorModel: Boolean = true
 
+    //是否只前台可见时放行
+    private var onlyForeground: Boolean = false
+
+    // 是否前台可见(默认true)
+    private var foreground: Boolean = true
+
     // 可以拦截读取系统剪贴板
     private var enableReadClipBoard: Boolean = true
 
@@ -104,7 +110,15 @@ class PrivacySentryBuilder {
         return this
     }
 
+    fun onlyForeground(onlyForeground: Boolean): PrivacySentryBuilder {
+        this.onlyForeground = onlyForeground
+        return this
+    }
+
     fun isVisitorModel(): Boolean {
+        if (onlyForeground) {
+            return visitorModel && foreground
+        }
         return visitorModel
     }
 
@@ -137,6 +151,11 @@ class PrivacySentryBuilder {
 
     fun isEnableReadClipBoard(): Boolean {
         return enableReadClipBoard
+    }
+
+    fun configForegroundModel(foreground: Boolean): PrivacySentryBuilder {
+        this.foreground = foreground
+        return this
     }
 
 }

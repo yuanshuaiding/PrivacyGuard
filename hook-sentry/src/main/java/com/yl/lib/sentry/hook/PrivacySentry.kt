@@ -129,7 +129,13 @@ class PrivacySentry {
             mBuilder?.configVisitorModel(true)
         }
 
+        fun foreground(){
+            mBuilder?.configForegroundModel(true)
+        }
 
+        fun background(){
+            mBuilder?.configForegroundModel(false)
+        }
 
         private fun defaultFilePrinter(
             ctx: Context,
