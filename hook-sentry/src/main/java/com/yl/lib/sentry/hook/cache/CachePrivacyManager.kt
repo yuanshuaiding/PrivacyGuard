@@ -30,7 +30,7 @@ class CachePrivacyManager {
             defaultValue: T,
             getValue: () -> T
         ): T {
-            var result = getCacheParam(key, defaultValue, PrivacyCacheType.MEMORY)
+            var result: Pair<Boolean, T> = getCacheParam(key, defaultValue, PrivacyCacheType.MEMORY)
             return handleData(
                 key,
                 methodDocumentDesc,
@@ -47,7 +47,8 @@ class CachePrivacyManager {
             defaultValue: T,
             getValue: () -> T
         ): T {
-            var result = getCacheParam(key, defaultValue, PrivacyCacheType.PERMANENT_DISK)
+            var result: Pair<Boolean, T> =
+                getCacheParam(key, defaultValue, PrivacyCacheType.PERMANENT_DISK)
             return handleData(
                 key,
                 methodDocumentDesc,
@@ -66,7 +67,7 @@ class CachePrivacyManager {
             getValue: () -> T
         ): T {
             var transformKey = TimeLessDiskCache.Util.buildKey(key, duration)
-            var result = getCacheParam(
+            var result: Pair<Boolean, T> = getCacheParam(
                 transformKey,
                 defaultValue,
                 PrivacyCacheType.TIMELINESS_DISK
