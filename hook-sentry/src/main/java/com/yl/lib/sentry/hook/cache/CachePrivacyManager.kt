@@ -11,26 +11,26 @@ import java.io.File
  */
 class CachePrivacyManager {
     object Manager {
-        private val dickCache: DiskCache by lazy {
+        val dickCache: DiskCache by lazy {
             DiskCache()
         }
 
         // 不同字段可能对时间的要求不一样
-        private val timeDiskCache: TimeLessDiskCache by lazy {
+        val timeDiskCache: TimeLessDiskCache by lazy {
             TimeLessDiskCache()
         }
 
-        private val memoryCache: MemoryCache<Any> by lazy {
+        val memoryCache: MemoryCache<Any> by lazy {
             MemoryCache<Any>()
         }
 
-        fun <T> loadWithMemoryCache(
+        inline fun <reified T> loadWithMemoryCache(
             key: String,
             methodDocumentDesc: String,
             defaultValue: T,
-            getValue: () -> T
+            noinline getValue: () -> T
         ): T {
-            var result: Pair<Boolean, T> = getCacheParam(key, defaultValue, PrivacyCacheType.MEMORY)
+            var result = getCacheParam(key, defaultValue, PrivacyCacheType.MEMORY)
             return handleData(
                 key,
                 methodDocumentDesc,
@@ -41,14 +41,13 @@ class CachePrivacyManager {
             )
         }
 
-        fun <T> loadWithDiskCache(
+        inline fun <reified T> loadWithDiskCache(
             key: String,
             methodDocumentDesc: String,
             defaultValue: T,
-            getValue: () -> T
+            noinline getValue: () -> T
         ): T {
-            var result: Pair<Boolean, T> =
-                getCacheParam(key, defaultValue, PrivacyCacheType.PERMANENT_DISK)
+            var result = getCacheParam(key, defaultValue, PrivacyCacheType.PERMANENT_DISK)
             return handleData(
                 key,
                 methodDocumentDesc,
@@ -59,15 +58,15 @@ class CachePrivacyManager {
             )
         }
 
-        fun <T> loadWithTimeCache(
+        inline fun <reified T> loadWithTimeCache(
             key: String,
             methodDocumentDesc: String,
             defaultValue: T,
             duration: Long = CacheUtils.Utils.MINUTE * 30,
-            getValue: () -> T
+            noinline getValue: () -> T
         ): T {
             var transformKey = TimeLessDiskCache.Util.buildKey(key, duration)
-            var result: Pair<Boolean, T> = getCacheParam(
+            var result = getCacheParam(
                 transformKey,
                 defaultValue,
                 PrivacyCacheType.TIMELINESS_DISK
@@ -82,7 +81,7 @@ class CachePrivacyManager {
             )
         }
 
-        private fun <T> handleData(
+        fun <T> handleData(
             key: String,
             methodDocumentDesc: String,
             defaultValue: T,
@@ -113,7 +112,7 @@ class CachePrivacyManager {
          * @param key String
          * @return T
          */
-        private fun <T> getCacheParam(
+        inline fun <reified T> getCacheParam(
             key: String,
             defaultValue: T,
             cacheType: PrivacyCacheType
@@ -123,9 +122,35 @@ class CachePrivacyManager {
                 PrivacyCacheType.PERMANENT_DISK -> dickCache.get(key, defaultValue.toString())
                 PrivacyCacheType.TIMELINESS_DISK -> timeDiskCache.get(key, defaultValue.toString())
             }
-            return if (cacheValue.first) {
-                Pair(true, cacheValue.second as T)
-            } else {
+            return if (cacheValue.first) ({
+                if (cacheValue.second is String) {
+                    when (T::class.java) {
+                        Byte::class.java -> {
+                            Pair(true, (cacheValue.second as String).toByte())
+                        }
+                        Short::class.java -> {
+                            Pair(true, (cacheValue.second as String).toShort())
+                        }
+                        Int::class.java -> {
+                            Pair(true, (cacheValue.second as String).toInt())
+                        }
+                        Long::class.java -> {
+                            Pair(true, (cacheValue.second as String).toLong())
+                        }
+                        Float::class.java -> {
+                            Pair(true, (cacheValue.second as String).toFloat())
+                        }
+                        Double::class.java -> {
+                            Pair(true, (cacheValue.second as String).toDouble())
+                        }
+                        else -> {
+                            Pair(true, cacheValue.second as T)
+                        }
+                    }
+                } else {
+                    Pair(true, cacheValue.second as T)
+                }
+            }) as Pair<Boolean, T> else {
                 var value = cacheValue.second
                 if (isEmpty(value)) {
                     value = defaultValue
@@ -149,7 +174,7 @@ class CachePrivacyManager {
             }
         }
 
-        private fun isEmpty(value: Any?): Boolean {
+        fun isEmpty(value: Any?): Boolean {
             if (value == null) {
                 return true
             } else if (value is String && TextUtils.isEmpty(value)) {
