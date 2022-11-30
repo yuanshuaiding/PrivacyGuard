@@ -4,6 +4,7 @@ import android.location.Location
 import android.text.TextUtils
 import com.yl.lib.sentry.hook.util.PrivacyProxyUtil
 import java.io.File
+import kotlin.reflect.KClass
 
 /**
  * @author yulun
@@ -24,13 +25,14 @@ class CachePrivacyManager {
             MemoryCache<Any>()
         }
 
-        fun <T> loadWithMemoryCache(
+        fun <T : Any> loadWithMemoryCache(
             key: String,
             methodDocumentDesc: String,
             defaultValue: T,
+            valueClass: KClass<T>,
             getValue: () -> T
         ): T {
-            var result = getCacheParam(key, defaultValue, PrivacyCacheType.MEMORY)
+            var result = getCacheParam(key, defaultValue, valueClass, PrivacyCacheType.MEMORY)
             return handleData(
                 key,
                 methodDocumentDesc,
@@ -41,13 +43,19 @@ class CachePrivacyManager {
             )
         }
 
-        fun <T> loadWithDiskCache(
+        fun <T : Any> loadWithDiskCache(
             key: String,
             methodDocumentDesc: String,
             defaultValue: T,
+            valueClass: KClass<T>,
             getValue: () -> T
         ): T {
-            var result = getCacheParam(key, defaultValue, PrivacyCacheType.PERMANENT_DISK)
+            var result = getCacheParam(
+                key,
+                defaultValue,
+                valueClass,
+                PrivacyCacheType.PERMANENT_DISK
+            )
             return handleData(
                 key,
                 methodDocumentDesc,
@@ -58,10 +66,11 @@ class CachePrivacyManager {
             )
         }
 
-        fun <T> loadWithTimeCache(
+        fun <T : Any> loadWithTimeCache(
             key: String,
             methodDocumentDesc: String,
             defaultValue: T,
+            valueClass: KClass<T>,
             duration: Long = CacheUtils.Utils.MINUTE * 30,
             getValue: () -> T
         ): T {
@@ -69,6 +78,7 @@ class CachePrivacyManager {
             var result = getCacheParam(
                 transformKey,
                 defaultValue,
+                valueClass,
                 PrivacyCacheType.TIMELINESS_DISK
             )
             return handleData(
@@ -81,7 +91,7 @@ class CachePrivacyManager {
             )
         }
 
-        private fun <T> handleData(
+        private fun <T : Any> handleData(
             key: String,
             methodDocumentDesc: String,
             defaultValue: T,
@@ -112,9 +122,10 @@ class CachePrivacyManager {
          * @param key String
          * @return T
          */
-        private fun <T> getCacheParam(
+        private fun <T : Any> getCacheParam(
             key: String,
             defaultValue: T,
+            valueClass: KClass<T>,
             cacheType: PrivacyCacheType
         ): Pair<Boolean, T> {
             var cacheValue = when (cacheType) {
@@ -123,13 +134,53 @@ class CachePrivacyManager {
                 PrivacyCacheType.TIMELINESS_DISK -> timeDiskCache.get(key, defaultValue.toString())
             }
             return if (cacheValue.first) {
-                Pair(true, cacheValue.second as T)
+                makePair(true, cacheValue.second, defaultValue, valueClass)
             } else {
                 var value = cacheValue.second
                 if (isEmpty(value)) {
                     value = defaultValue
                 }
-                Pair(false, value as T)
+                makePair(false, value, defaultValue, valueClass)
+            }
+        }
+
+        private fun <T : Any> makePair(
+            key: Boolean,
+            value: Any?,
+            defaultValue: T,
+            valueClass: KClass<T>
+        ): Pair<Boolean, T> {
+            return try {
+                if (value is String) {
+                    when (valueClass) {
+                        Byte::class -> {
+                            Pair(key, value.toByte() as T)
+                        }
+                        Short::class -> {
+                            Pair(key, value.toShort() as T)
+                        }
+                        Int::class -> {
+                            Pair(key, value.toInt() as T)
+                        }
+                        Long::class -> {
+                            Pair(key, value.toLong() as T)
+                        }
+                        Float::class -> {
+                            Pair(key, value.toFloat() as T)
+                        }
+                        Double::class -> {
+                            Pair(key, value.toDouble() as T)
+                        }
+                        else -> {
+                            Pair(key, value as T)
+                        }
+                    }
+                } else {
+                    Pair(key, value as T)
+                }
+            } catch (e: java.lang.ClassCastException) {
+                e.printStackTrace()
+                Pair(false, defaultValue)
             }
         }
 
