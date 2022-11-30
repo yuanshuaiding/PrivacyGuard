@@ -154,7 +154,7 @@ open class PrivacyProxyCall {
                     methodDocumentDesc = "安装包-getPackageInfo",
                     bVisitorModel = true
                 )
-                return manager.getPackageInfo(versionedPackage, flags)
+                return null
             }
             doFilePrinter(
                 "getPackageInfo",
@@ -183,7 +183,7 @@ open class PrivacyProxyCall {
                     methodDocumentDesc = "安装包-getPackageInfo-${packageName}",
                     bVisitorModel = true
                 )
-                return manager.getPackageInfo(packageName, flags)
+                return null
             }
             doFilePrinter(
                 "getPackageInfo",
