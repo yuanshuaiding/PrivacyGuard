@@ -476,6 +476,7 @@ open class PrivacyProxyCall {
                 key,
                 "getSSID",
                 "",
+                String::class,
                 duration = CacheUtils.Utils.MINUTE * 5
             ) { manager.ssid }
             return manager.ssid
@@ -506,6 +507,7 @@ open class PrivacyProxyCall {
                 key,
                 "getBSSID",
                 "",
+                String::class,
                 duration = CacheUtils.Utils.MINUTE * 5
             ) { manager.ssid }
             return manager.bssid
@@ -520,20 +522,21 @@ open class PrivacyProxyCall {
             originalMethod = "getScanResults",
             originalOpcode = MethodInvokeOpcode.INVOKEVIRTUAL
         )
-        fun getScanResults(manager: WifiManager): List<ScanResult>? {
+        fun getScanResults(manager: WifiManager): List<*> {
             if (PrivacySentry.Privacy.getBuilder()
                     ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
                     ?.isForbiddenAPI("getScanResults") == true
             ) {
                 doFilePrinter("getScanResults", "WIFI扫描结果", bVisitorModel = true)
-                return emptyList()
+                return emptyList<ScanResult>()
             }
 
             var key = "getScanResults"
             return CachePrivacyManager.Manager.loadWithTimeCache(
                 key,
                 "getScanResults",
-                emptyList(),
+                emptyList<ScanResult>(),
+                List::class,
                 duration = CacheUtils.Utils.MINUTE * 5
             ) { manager.scanResults }
         }
@@ -561,6 +564,7 @@ open class PrivacyProxyCall {
                 key,
                 "isWifiEnabled",
                 true,
+                Boolean::class,
                 duration = CacheUtils.Utils.MINUTE * 5
             ) { manager.isWifiEnabled }
         }
@@ -634,7 +638,8 @@ open class PrivacyProxyCall {
             var locationStr = CachePrivacyManager.Manager.loadWithTimeCache(
                 key,
                 "上一次的位置信息",
-                ""
+                "",
+                String::class,
             ) { PrivacyUtil.Util.formatLocation(manager.getLastKnownLocation(provider)) }
 
             var location: Location? = null
@@ -699,8 +704,10 @@ open class PrivacyProxyCall {
                 return CachePrivacyManager.Manager.loadWithDiskCache(
                     key,
                     "mac地址-getMacAddress",
-                    ""
-                ) { manager.getMacAddress() }
+                    "",
+                    String::class,
+                    { manager.getMacAddress() },
+                )
             }
         }
 
@@ -729,8 +736,10 @@ open class PrivacyProxyCall {
                 return CachePrivacyManager.Manager.loadWithDiskCache(
                     key,
                     "mac地址-getHardwareAddress",
-                    ""
-                ) { manager.hardwareAddress.toString() }.toByteArray()
+                    "",
+                    String::class,
+                    { manager.hardwareAddress.toString() },
+                ).toByteArray()
             }
         }
 
@@ -756,7 +765,8 @@ open class PrivacyProxyCall {
                 return CachePrivacyManager.Manager.loadWithMemoryCache(
                     key,
                     "蓝牙地址-getAddress",
-                    ""
+                    "",
+                    String::class,
                 ) { manager.address }
             }
         }
@@ -890,7 +900,8 @@ open class PrivacyProxyCall {
                 return CachePrivacyManager.Manager.loadWithDiskCache(
                     key,
                     "getString-系统信息",
-                    ""
+                    "",
+                    String::class,
                 ) {
                     Settings.Secure.getString(
                         contentResolver,
@@ -931,7 +942,8 @@ open class PrivacyProxyCall {
                 return CachePrivacyManager.Manager.loadWithDiskCache(
                     key,
                     "getSerial",
-                    ""
+                    "",
+                    String::class,
                 ) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                         Build.getSerial()
@@ -961,7 +973,8 @@ open class PrivacyProxyCall {
                 result = CachePrivacyManager.Manager.loadWithMemoryCache<File>(
                     key,
                     "getExternalStorageDirectory",
-                    File("")
+                    File(""),
+                    File::class,
                 ) {
                     Environment.getExternalStorageDirectory()
                 }
@@ -977,7 +990,8 @@ open class PrivacyProxyCall {
             return CachePrivacyManager.Manager.loadWithMemoryCache(
                 key,
                 "getBrand",
-                ""
+                "",
+                String::class,
             ) {
                 PrivacyLog.i("getBrand Value")
                 Build.BRAND

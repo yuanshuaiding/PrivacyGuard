@@ -4,6 +4,7 @@ import android.location.Location
 import android.text.TextUtils
 import com.yl.lib.sentry.hook.util.PrivacyProxyUtil
 import java.io.File
+import kotlin.reflect.KClass
 
 /**
  * @author yulun
@@ -11,26 +12,27 @@ import java.io.File
  */
 class CachePrivacyManager {
     object Manager {
-        val dickCache: DiskCache by lazy {
+        private val dickCache: DiskCache by lazy {
             DiskCache()
         }
 
         // 不同字段可能对时间的要求不一样
-        val timeDiskCache: TimeLessDiskCache by lazy {
+        private val timeDiskCache: TimeLessDiskCache by lazy {
             TimeLessDiskCache()
         }
 
-        val memoryCache: MemoryCache<Any> by lazy {
+        private val memoryCache: MemoryCache<Any> by lazy {
             MemoryCache<Any>()
         }
 
-        inline fun <reified T> loadWithMemoryCache(
+        fun <T : Any> loadWithMemoryCache(
             key: String,
             methodDocumentDesc: String,
             defaultValue: T,
-            noinline getValue: () -> T
+            valueClass: KClass<T>,
+            getValue: () -> T
         ): T {
-            var result = getCacheParam(key, defaultValue, PrivacyCacheType.MEMORY)
+            var result = getCacheParam(key, defaultValue, valueClass, PrivacyCacheType.MEMORY)
             return handleData(
                 key,
                 methodDocumentDesc,
@@ -41,13 +43,19 @@ class CachePrivacyManager {
             )
         }
 
-        inline fun <reified T> loadWithDiskCache(
+        fun <T : Any> loadWithDiskCache(
             key: String,
             methodDocumentDesc: String,
             defaultValue: T,
-            noinline getValue: () -> T
+            valueClass: KClass<T>,
+            getValue: () -> T
         ): T {
-            var result = getCacheParam(key, defaultValue, PrivacyCacheType.PERMANENT_DISK)
+            var result = getCacheParam(
+                key,
+                defaultValue,
+                valueClass,
+                PrivacyCacheType.PERMANENT_DISK
+            )
             return handleData(
                 key,
                 methodDocumentDesc,
@@ -58,17 +66,19 @@ class CachePrivacyManager {
             )
         }
 
-        inline fun <reified T> loadWithTimeCache(
+        fun <T : Any> loadWithTimeCache(
             key: String,
             methodDocumentDesc: String,
             defaultValue: T,
+            valueClass: KClass<T>,
             duration: Long = CacheUtils.Utils.MINUTE * 30,
-            noinline getValue: () -> T
+            getValue: () -> T
         ): T {
             var transformKey = TimeLessDiskCache.Util.buildKey(key, duration)
             var result = getCacheParam(
                 transformKey,
                 defaultValue,
+                valueClass,
                 PrivacyCacheType.TIMELINESS_DISK
             )
             return handleData(
@@ -81,7 +91,7 @@ class CachePrivacyManager {
             )
         }
 
-        fun <T> handleData(
+        private fun <T : Any> handleData(
             key: String,
             methodDocumentDesc: String,
             defaultValue: T,
@@ -112,9 +122,10 @@ class CachePrivacyManager {
          * @param key String
          * @return T
          */
-        inline fun <reified T> getCacheParam(
+        private fun <T : Any> getCacheParam(
             key: String,
             defaultValue: T,
+            valueClass: KClass<T>,
             cacheType: PrivacyCacheType
         ): Pair<Boolean, T> {
             var cacheValue = when (cacheType) {
@@ -122,40 +133,54 @@ class CachePrivacyManager {
                 PrivacyCacheType.PERMANENT_DISK -> dickCache.get(key, defaultValue.toString())
                 PrivacyCacheType.TIMELINESS_DISK -> timeDiskCache.get(key, defaultValue.toString())
             }
-            return if (cacheValue.first) ({
-                if (cacheValue.second is String) {
-                    when (T::class.java) {
-                        Byte::class.java -> {
-                            Pair(true, (cacheValue.second as String).toByte())
-                        }
-                        Short::class.java -> {
-                            Pair(true, (cacheValue.second as String).toShort())
-                        }
-                        Int::class.java -> {
-                            Pair(true, (cacheValue.second as String).toInt())
-                        }
-                        Long::class.java -> {
-                            Pair(true, (cacheValue.second as String).toLong())
-                        }
-                        Float::class.java -> {
-                            Pair(true, (cacheValue.second as String).toFloat())
-                        }
-                        Double::class.java -> {
-                            Pair(true, (cacheValue.second as String).toDouble())
-                        }
-                        else -> {
-                            Pair(true, cacheValue.second as T)
-                        }
-                    }
-                } else {
-                    Pair(true, cacheValue.second as T)
-                }
-            }) as Pair<Boolean, T> else {
+            return if (cacheValue.first) {
+                makePair(true, cacheValue.second, defaultValue, valueClass)
+            } else {
                 var value = cacheValue.second
                 if (isEmpty(value)) {
                     value = defaultValue
                 }
-                Pair(false, value as T)
+                makePair(false, value, defaultValue, valueClass)
+            }
+        }
+
+        private fun <T : Any> makePair(
+            key: Boolean,
+            value: Any?,
+            defaultValue: T,
+            valueClass: KClass<T>
+        ): Pair<Boolean, T> {
+            return try {
+                if (value is String) {
+                    when (valueClass) {
+                        Byte::class -> {
+                            Pair(key, value.toByte() as T)
+                        }
+                        Short::class -> {
+                            Pair(key, value.toShort() as T)
+                        }
+                        Int::class -> {
+                            Pair(key, value.toInt() as T)
+                        }
+                        Long::class -> {
+                            Pair(key, value.toLong() as T)
+                        }
+                        Float::class -> {
+                            Pair(key, value.toFloat() as T)
+                        }
+                        Double::class -> {
+                            Pair(key, value.toDouble() as T)
+                        }
+                        else -> {
+                            Pair(key, value as T)
+                        }
+                    }
+                } else {
+                    Pair(key, value as T)
+                }
+            } catch (e: java.lang.ClassCastException) {
+                e.printStackTrace()
+                Pair(false, defaultValue)
             }
         }
 
@@ -174,7 +199,7 @@ class CachePrivacyManager {
             }
         }
 
-        fun isEmpty(value: Any?): Boolean {
+        private fun isEmpty(value: Any?): Boolean {
             if (value == null) {
                 return true
             } else if (value is String && TextUtils.isEmpty(value)) {

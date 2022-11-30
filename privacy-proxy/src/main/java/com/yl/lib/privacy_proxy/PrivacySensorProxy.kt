@@ -107,23 +107,26 @@ open class PrivacySensorProxy {
             originalOpcode = MethodInvokeOpcode.INVOKEVIRTUAL
         )
         @JvmStatic
-        fun getSensorList(sensorManager: SensorManager?, type: Int): List<Sensor>? {
+        fun getSensorList(sensorManager: SensorManager?, type: Int): List<*> {
             var logPair = transformSensorTypeToString(type)
-            if (PrivacySentry.Privacy.getBuilder()?.isVisitorModel() == true|| PrivacySentry.Privacy.getBuilder()
-                    ?.isForbiddenAPI("getSensorList") == true) {
+            if (PrivacySentry.Privacy.getBuilder()
+                    ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
+                    ?.isForbiddenAPI("getSensorList") == true
+            ) {
                 PrivacyProxyUtil.Util.doFilePrinter(
                     "getSensorList-$type",
                     "获取${logPair.first}-${logPair.second}",
                     bVisitorModel = true
                 )
-                return emptyList()
+                return emptyList<Sensor>()
             }
-            return CachePrivacyManager.Manager.loadWithMemoryCache<List<Sensor>>(
+            return CachePrivacyManager.Manager.loadWithMemoryCache(
                 "getSensorList-$type",
                 "获取${logPair.first}-${logPair.second}",
-                emptyList()
+                emptyList<Sensor>(),
+                List::class
             ) {
-                sensorManager?.getSensorList(type) ?: emptyList()
+                sensorManager?.getSensorList(type) ?: emptyList<Sensor>()
             }
         }
 

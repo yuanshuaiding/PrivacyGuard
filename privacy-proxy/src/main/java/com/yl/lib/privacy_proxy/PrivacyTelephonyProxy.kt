@@ -64,8 +64,10 @@ open class PrivacyTelephonyProxy {
                 return CachePrivacyManager.Manager.loadWithDiskCache(
                     key,
                     "移动设备标识符-getMeid()",
-                    ""
-                ) { manager.meid }
+                    "",
+                    String::class,
+                    { manager.meid },
+                )
             }
         }
 
@@ -98,8 +100,10 @@ open class PrivacyTelephonyProxy {
                 return CachePrivacyManager.Manager.loadWithDiskCache(
                     key,
                     "移动设备标识符-getMeid(I)",
-                    ""
-                ) { manager.meid }
+                    "",
+                    String::class,
+                    { manager.meid },
+                )
             }
         }
 
@@ -133,8 +137,10 @@ open class PrivacyTelephonyProxy {
                 return CachePrivacyManager.Manager.loadWithDiskCache(
                     key,
                     "IMEI-getDeviceId()",
-                    ""
-                ) { manager.getDeviceId() }
+                    "",
+                    String::class,
+                    { manager.getDeviceId() },
+                )
             }
         }
 
@@ -171,8 +177,10 @@ open class PrivacyTelephonyProxy {
                 return CachePrivacyManager.Manager.loadWithDiskCache(
                     key,
                     "IMEI-getDeviceId(I)",
-                    ""
-                ) { manager.getDeviceId(index) }
+                    "",
+                    String::class,
+                    { manager.getDeviceId(index) },
+                )
             }
         }
 
@@ -210,8 +218,10 @@ open class PrivacyTelephonyProxy {
                 return CachePrivacyManager.Manager.loadWithDiskCache(
                     key,
                     "IMSI-getSubscriberId()",
-                    ""
-                ) { manager.subscriberId }
+                    "",
+                    String::class,
+                    { manager.subscriberId },
+                )
             }
         }
 
@@ -255,8 +265,10 @@ open class PrivacyTelephonyProxy {
                 return CachePrivacyManager.Manager.loadWithDiskCache(
                     key,
                     "IMEI-getImei()",
-                    ""
-                ) { manager.imei }
+                    "",
+                    String::class,
+                    { manager.imei },
+                )
             }
         }
 
@@ -289,8 +301,10 @@ open class PrivacyTelephonyProxy {
                 return CachePrivacyManager.Manager.loadWithDiskCache(
                     key,
                     "IMEI-getImei(I)",
-                    ""
-                ) { manager.getImei(index) }
+                    "",
+                    String::class,
+                    { manager.getImei(index) },
+                )
             }
         }
 
@@ -327,8 +341,10 @@ open class PrivacyTelephonyProxy {
                 return CachePrivacyManager.Manager.loadWithDiskCache(
                     key,
                     "SIM卡-getSimSerialNumber()",
-                    ""
-                ) { manager.getSimSerialNumber() }
+                    "",
+                    String::class,
+                    { manager.getSimSerialNumber() },
+                )
             }
         }
 
@@ -366,8 +382,10 @@ open class PrivacyTelephonyProxy {
                 return CachePrivacyManager.Manager.loadWithDiskCache(
                     key,
                     "手机号-getLine1Number",
-                    ""
-                ) { manager.line1Number }
+                    "",
+                    String::class,
+                    { manager.line1Number },
+                )
             }
         }
 
@@ -397,7 +415,8 @@ open class PrivacyTelephonyProxy {
                 return CachePrivacyManager.Manager.loadWithMemoryCache(
                     key,
                     "运营商信息-getSimOperator()",
-                    ""
+                    "",
+                    String::class,
                 ) { manager.simOperator }
             }
         }
@@ -428,7 +447,8 @@ open class PrivacyTelephonyProxy {
                 return CachePrivacyManager.Manager.loadWithMemoryCache(
                     key,
                     "运营商信息-getNetworkOperator()",
-                    ""
+                    "",
+                    String::class,
                 ) { manager.networkOperator }
             }
         }
@@ -459,6 +479,7 @@ open class PrivacyTelephonyProxy {
                     key,
                     "运营商信息-getNetworkOperator()",
                     SIM_STATE_UNKNOWN,
+                    Int::class,
                     duration = CacheUtils.Utils.MINUTE * 5
                 ) { manager.simState }
             }

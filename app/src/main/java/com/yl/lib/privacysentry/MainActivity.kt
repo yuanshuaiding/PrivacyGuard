@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.telephony.TelephonyManager
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.yl.lib.privacy_test.PrivacyProxySelfTest2
@@ -220,6 +221,10 @@ class MainActivity : AppCompatActivity() {
             TestInJava.testReflexClipManager()
             TestInJava.testReflexClipManagerOpen()
             TestInJava.testReflexClipManagerClose()
+        }
+        findViewById<Button>(R.id.btn_sim_operator).setOnClickListener {
+            val tm: TelephonyManager = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+            val state=tm.simState
         }
 
         //Android Q开始，READ_PHONE_STATE 不再有用，不用全局弹框
