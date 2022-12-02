@@ -11,7 +11,7 @@ dependencies {
     implementation group: 'org.ow2.asm', name: 'asm', version: '9.1'
     implementation group: 'org.ow2.asm', name: 'asm-commons', version: '9.1'
 
-    implementation "com.alibaba:fastjson:1.1.68.android"
+    implementation "com.alibaba:fastjson:1.2.48"
 }
 
 if (rootProject.ext.plugin_local_debug) {

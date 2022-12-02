@@ -21,6 +21,8 @@ import android.telephony.CellInfo
 import android.telephony.TelephonyManager
 import androidx.annotation.Keep
 import androidx.annotation.RequiresApi
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.yl.lib.privacy_annotation.MethodInvokeOpcode
 import com.yl.lib.privacy_annotation.PrivacyClassProxy
 import com.yl.lib.privacy_annotation.PrivacyMethodProxy
@@ -123,7 +125,7 @@ open class PrivacyProxyCall {
         )
         @JvmStatic
         fun getInstalledPackages(manager: PackageManager, flags: Int): List<PackageInfo> {
-            doFilePrinter("getInstalledPackages", methodDocumentDesc = "安装包-getInstalledPackages")
+            doFilePrinter("getInstalledPackages", methodDocumentDesc = "安装包列表-getInstalledPackages-${flags}")
             if (PrivacySentry.Privacy.getBuilder()
                     ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
                     ?.isForbiddenAPI("getInstalledPackages") == true
@@ -141,26 +143,11 @@ open class PrivacyProxyCall {
         )
         @JvmStatic
         fun getPackageInfo(
-            manager: PackageManager, versionedPackage: VersionedPackage,
+            manager: PackageManager,
+            versionedPackage: VersionedPackage,
             flags: Int
         ): PackageInfo? {
-
-            if (PrivacySentry.Privacy.getBuilder()
-                    ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
-                    ?.isForbiddenAPI("getPackageInfo") == true
-            ) {
-                doFilePrinter(
-                    "getPackageInfo",
-                    methodDocumentDesc = "安装包-getPackageInfo",
-                    bVisitorModel = true
-                )
-                return null
-            }
-            doFilePrinter(
-                "getPackageInfo",
-                methodDocumentDesc = "安装包-getPackageInfo-${versionedPackage.packageName}"
-            )
-            return manager.getPackageInfo(versionedPackage, flags)
+            return getPackageInfo(manager,versionedPackage.packageName,flags)
         }
 
         @PrivacyMethodProxy(
@@ -189,6 +176,27 @@ open class PrivacyProxyCall {
                 "getPackageInfo",
                 methodDocumentDesc = "安装包-getPackageInfo-${packageName}"
             )
+            //增加缓存
+            val value = CachePrivacyManager.Manager.loadWithTimeCache(
+                "getPackageInfo-${packageName}",
+                "getPackageInfo",
+                "",
+                String::class,
+                duration = CacheUtils.Utils.MINUTE * 30
+            ) {
+                val p=manager.getPackageInfo(packageName, flags)
+                GsonUtils.toJson(p)
+            }
+
+            val pkg = GsonUtils.jsonToClass(value, PackageInfo::class.java)
+            if (pkg != null) {
+                doFilePrinter(
+                    "getPackageInfo",
+                    methodDocumentDesc = "安装包-getPackageInfo-${packageName}",
+                    bCache = true
+                )
+                return pkg
+            }
             return manager.getPackageInfo(packageName, flags)
         }
 
