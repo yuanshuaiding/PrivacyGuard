@@ -178,7 +178,7 @@ open class PrivacyProxyCall {
             )
             //增加缓存
             val value = CachePrivacyManager.Manager.loadWithTimeCache(
-                "getPackageInfo-${packageName}",
+                "getPackageInfo-$flags-${packageName}",
                 "getPackageInfo",
                 "",
                 String::class,
