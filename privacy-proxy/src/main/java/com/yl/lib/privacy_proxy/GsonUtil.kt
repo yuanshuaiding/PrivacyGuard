@@ -1,8 +1,6 @@
 package com.yl.lib.privacy_proxy
 
-import android.text.TextUtils
 import com.google.gson.Gson
-import java.lang.reflect.Type
 
 /**
  * @Description:gson解析工具类
@@ -22,7 +20,12 @@ internal class GsonUtils private constructor() {
                 Gson().fromJson(json, classOfT)
             } catch (var4: Exception) {
                 println("json to class【" + classOfT + "】 解析失败  " + var4.message)
-                null
+                try {
+                    com.alibaba.fastjson2.JSON.parseObject(json, classOfT)
+                } catch (fe: Exception) {
+                    println("json to class【" + classOfT + "】 fastjson2解析失败  " + fe.message)
+                    null
+                }
             }
         }
 

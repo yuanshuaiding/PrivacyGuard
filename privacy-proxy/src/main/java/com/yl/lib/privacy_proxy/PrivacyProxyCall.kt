@@ -21,8 +21,6 @@ import android.telephony.CellInfo
 import android.telephony.TelephonyManager
 import androidx.annotation.Keep
 import androidx.annotation.RequiresApi
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import com.yl.lib.privacy_annotation.MethodInvokeOpcode
 import com.yl.lib.privacy_annotation.PrivacyClassProxy
 import com.yl.lib.privacy_annotation.PrivacyMethodProxy
@@ -125,7 +123,10 @@ open class PrivacyProxyCall {
         )
         @JvmStatic
         fun getInstalledPackages(manager: PackageManager, flags: Int): List<PackageInfo> {
-            doFilePrinter("getInstalledPackages", methodDocumentDesc = "安装包列表-getInstalledPackages-${flags}")
+            doFilePrinter(
+                "getInstalledPackages",
+                methodDocumentDesc = "安装包列表-getInstalledPackages-${flags}"
+            )
             if (PrivacySentry.Privacy.getBuilder()
                     ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
                     ?.isForbiddenAPI("getInstalledPackages") == true
@@ -147,7 +148,7 @@ open class PrivacyProxyCall {
             versionedPackage: VersionedPackage,
             flags: Int
         ): PackageInfo? {
-            return getPackageInfo(manager,versionedPackage.packageName,flags)
+            return getPackageInfo(manager, versionedPackage.packageName, flags)
         }
 
         @PrivacyMethodProxy(
@@ -184,7 +185,7 @@ open class PrivacyProxyCall {
                 String::class,
                 duration = CacheUtils.Utils.MINUTE * 30
             ) {
-                val p=manager.getPackageInfo(packageName, flags)
+                val p = manager.getPackageInfo(packageName, flags)
                 GsonUtils.toJson(p)
             }
 
@@ -192,7 +193,7 @@ open class PrivacyProxyCall {
             if (pkg != null) {
                 doFilePrinter(
                     "getPackageInfo",
-                    methodDocumentDesc = "安装包-getPackageInfo-${packageName}",
+                    methodDocumentDesc = "安装包-getPackageInfo-$flags-${packageName}",
                     bCache = true
                 )
                 return pkg
