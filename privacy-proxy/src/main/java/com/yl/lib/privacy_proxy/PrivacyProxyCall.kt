@@ -144,11 +144,24 @@ open class PrivacyProxyCall {
         )
         @JvmStatic
         fun getPackageInfo(
-            manager: PackageManager,
-            versionedPackage: VersionedPackage,
+            manager: PackageManager, versionedPackage: VersionedPackage,
             flags: Int
         ): PackageInfo? {
-            return getPackageInfo(manager, versionedPackage.packageName, flags)
+
+            if (PrivacySentry.Privacy.getBuilder()?.isVisitorModel() == true|| PrivacySentry.Privacy.getBuilder()
+                    ?.isForbiddenAPI("getPackageInfo") == true) {
+                doFilePrinter(
+                    "getPackageInfo",
+                    methodDocumentDesc = "安装包-getPackageInfo",
+                    bVisitorModel = true
+                )
+                return manager.getPackageInfo(versionedPackage, flags)
+            }
+            doFilePrinter(
+                "getPackageInfo",
+                methodDocumentDesc = "安装包-getPackageInfo-${versionedPackage.packageName}"
+            )
+            return manager.getPackageInfo(versionedPackage, flags)
         }
 
         @PrivacyMethodProxy(
@@ -171,33 +184,12 @@ open class PrivacyProxyCall {
                     methodDocumentDesc = "安装包-getPackageInfo-${packageName}",
                     bVisitorModel = true
                 )
-                return null
+                return manager.getPackageInfo(packageName, flags)
             }
             doFilePrinter(
                 "getPackageInfo",
                 methodDocumentDesc = "安装包-getPackageInfo-${packageName}"
             )
-            //增加缓存
-            val value = CachePrivacyManager.Manager.loadWithTimeCache(
-                "getPackageInfo-$flags-${packageName}",
-                "getPackageInfo",
-                "",
-                String::class,
-                duration = CacheUtils.Utils.MINUTE * 30
-            ) {
-                val p = manager.getPackageInfo(packageName, flags)
-                GsonUtils.toJson(p)
-            }
-
-            val pkg = GsonUtils.jsonToClass(value, PackageInfo::class.java)
-            if (pkg != null) {
-                doFilePrinter(
-                    "getPackageInfo",
-                    methodDocumentDesc = "安装包-getPackageInfo-$flags-${packageName}",
-                    bCache = true
-                )
-                return pkg
-            }
             return manager.getPackageInfo(packageName, flags)
         }
 
