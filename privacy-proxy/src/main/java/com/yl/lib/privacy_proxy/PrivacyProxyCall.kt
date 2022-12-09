@@ -19,6 +19,7 @@ import android.os.Environment
 import android.provider.Settings
 import android.telephony.CellInfo
 import android.telephony.TelephonyManager
+import android.util.Base64
 import androidx.annotation.Keep
 import androidx.annotation.RequiresApi
 import com.yl.lib.privacy_annotation.MethodInvokeOpcode
@@ -144,12 +145,15 @@ open class PrivacyProxyCall {
         )
         @JvmStatic
         fun getPackageInfo(
-            manager: PackageManager, versionedPackage: VersionedPackage,
+            manager: PackageManager,
+            versionedPackage: VersionedPackage,
             flags: Int
         ): PackageInfo? {
 
-            if (PrivacySentry.Privacy.getBuilder()?.isVisitorModel() == true|| PrivacySentry.Privacy.getBuilder()
-                    ?.isForbiddenAPI("getPackageInfo") == true) {
+            if (PrivacySentry.Privacy.getBuilder()
+                    ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
+                    ?.isForbiddenAPI("getPackageInfo") == true
+            ) {
                 doFilePrinter(
                     "getPackageInfo",
                     methodDocumentDesc = "安装包-getPackageInfo",
@@ -180,16 +184,40 @@ open class PrivacyProxyCall {
                     ?.isForbiddenAPI("getPackageInfo") == true
             ) {
                 doFilePrinter(
-                    "getPackageInfo",
-                    methodDocumentDesc = "安装包-getPackageInfo-${packageName}",
+                    "getPackageInfo-$flags",
+                    methodDocumentDesc = "安装包-getPackageInfo-$flags-${packageName}",
                     bVisitorModel = true
                 )
                 return manager.getPackageInfo(packageName, flags)
             }
-            doFilePrinter(
-                "getPackageInfo",
-                methodDocumentDesc = "安装包-getPackageInfo-${packageName}"
-            )
+
+            //增加缓存
+            try {
+                val value = CachePrivacyManager.Manager.loadWithTimeCache(
+                    "getPackageInfo-$flags-${packageName}",
+                    "getPackageInfo",
+                    "",
+                    String::class,
+                    duration = CacheUtils.Utils.MINUTE * 30
+                ) {
+                    doFilePrinter(
+                        "getPackageInfo-$flags",
+                        methodDocumentDesc = "安装包-getPackageInfo-$flags-${packageName}"
+                    )
+                    val p = manager.getPackageInfo(packageName, flags)
+                    val byte = ParcelableUtil.marshall(p)
+                    Base64.encodeToString(byte, 0)
+                }
+                val parcel = ParcelableUtil.unmarshall(Base64.decode(value, 0))
+                val pkg = PackageInfo.CREATOR.createFromParcel(parcel)
+                if (pkg != null && !pkg.packageName.isNullOrEmpty()) {
+                    PrivacyLog.i("getPackageInfo-$flags-${packageName} :成功从缓存获取对象")
+                    return pkg
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+
             return manager.getPackageInfo(packageName, flags)
         }
 
