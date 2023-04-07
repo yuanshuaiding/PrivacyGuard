@@ -156,15 +156,43 @@ open class PrivacyProxyCall {
             ) {
                 doFilePrinter(
                     "getPackageInfo",
-                    methodDocumentDesc = "安装包-getPackageInfo",
+                    methodDocumentDesc = "安装包-getPackageInfo-${versionedPackage.packageName}",
                     bVisitorModel = true
                 )
-                return manager.getPackageInfo(versionedPackage, flags)
+                return null
             }
             doFilePrinter(
                 "getPackageInfo",
                 methodDocumentDesc = "安装包-getPackageInfo-${versionedPackage.packageName}"
             )
+
+            //增加缓存
+            try {
+                val value = CachePrivacyManager.Manager.loadWithTimeCache(
+                    "getPackageInfo-$flags-${versionedPackage.packageName}",
+                    "getPackageInfo",
+                    "",
+                    String::class,
+                    duration = CacheUtils.Utils.MINUTE * 30
+                ) {
+                    doFilePrinter(
+                        "getPackageInfo-$flags",
+                        methodDocumentDesc = "安装包-getPackageInfo-$flags-${versionedPackage.packageName}"
+                    )
+                    val p = manager.getPackageInfo(versionedPackage, flags)
+                    val byte = ParcelableUtil.marshall(p)
+                    Base64.encodeToString(byte, 0)
+                }
+                val parcel = ParcelableUtil.unmarshall(Base64.decode(value, 0))
+                val pkg = PackageInfo.CREATOR.createFromParcel(parcel)
+                if (pkg != null && !pkg.packageName.isNullOrEmpty()) {
+                    PrivacyLog.i("getPackageInfo-$flags-${versionedPackage.packageName} :成功从缓存获取对象")
+                    return pkg
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+
             return manager.getPackageInfo(versionedPackage, flags)
         }
 
@@ -188,7 +216,7 @@ open class PrivacyProxyCall {
                     methodDocumentDesc = "安装包-getPackageInfo-$flags-${packageName}",
                     bVisitorModel = true
                 )
-                return manager.getPackageInfo(packageName, flags)
+                return null
             }
 
             //增加缓存

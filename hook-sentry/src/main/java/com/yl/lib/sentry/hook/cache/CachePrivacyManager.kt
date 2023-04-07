@@ -74,8 +74,8 @@ class CachePrivacyManager {
             duration: Long = CacheUtils.Utils.MINUTE * 30,
             getValue: () -> T
         ): T {
-            var transformKey = TimeLessDiskCache.Util.buildKey(key, duration)
-            var result = getCacheParam(
+            val transformKey = TimeLessDiskCache.Util.buildKey(key, duration)
+            val result = getCacheParam(
                 transformKey,
                 defaultValue,
                 valueClass,
