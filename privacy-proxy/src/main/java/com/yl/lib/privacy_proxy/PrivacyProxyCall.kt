@@ -156,15 +156,11 @@ open class PrivacyProxyCall {
             ) {
                 doFilePrinter(
                     "getPackageInfo",
-                    methodDocumentDesc = "安装包-getPackageInfo-${versionedPackage.packageName}",
+                    methodDocumentDesc = "安装包-getPackageInfo-$versionedPackage",
                     bVisitorModel = true
                 )
                 return null
             }
-            doFilePrinter(
-                "getPackageInfo",
-                methodDocumentDesc = "安装包-getPackageInfo-${versionedPackage.packageName}"
-            )
 
             //增加缓存
             try {
@@ -176,8 +172,8 @@ open class PrivacyProxyCall {
                     duration = CacheUtils.Utils.MINUTE * 30
                 ) {
                     doFilePrinter(
-                        "getPackageInfo-$flags",
-                        methodDocumentDesc = "安装包-getPackageInfo-$flags-${versionedPackage.packageName}"
+                        "getPackageInfo-$flags-${versionedPackage.packageName}",
+                        methodDocumentDesc = "安装包-getPackageInfo-$flags-$versionedPackage"
                     )
                     val p = manager.getPackageInfo(versionedPackage, flags)
                     val byte = ParcelableUtil.marshall(p)
@@ -186,7 +182,7 @@ open class PrivacyProxyCall {
                 val parcel = ParcelableUtil.unmarshall(Base64.decode(value, 0))
                 val pkg = PackageInfo.CREATOR.createFromParcel(parcel)
                 if (pkg != null && !pkg.packageName.isNullOrEmpty()) {
-                    PrivacyLog.i("getPackageInfo-$flags-${versionedPackage.packageName} :成功从缓存获取对象")
+                    PrivacyLog.i("getPackageInfo-$flags-$versionedPackage :成功从缓存获取对象")
                     return pkg
                 }
             } catch (e: Exception) {
@@ -229,8 +225,8 @@ open class PrivacyProxyCall {
                     duration = CacheUtils.Utils.MINUTE * 30
                 ) {
                     doFilePrinter(
-                        "getPackageInfo-$flags",
-                        methodDocumentDesc = "安装包-getPackageInfo-$flags-${packageName}"
+                        "getPackageInfo-$flags-${packageName}",
+                        methodDocumentDesc = "安装包-getPackageInfo-$flags"
                     )
                     val p = manager.getPackageInfo(packageName, flags)
                     val byte = ParcelableUtil.marshall(p)
