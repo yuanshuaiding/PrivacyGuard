@@ -167,7 +167,7 @@ open class PrivacyProxyCall {
                 val value = CachePrivacyManager.Manager.loadWithTimeCache(
                     "getPackageInfo-$flags-${versionedPackage.packageName}",
                     "getPackageInfo",
-                    "",
+                    "NameNotFoundException",
                     String::class,
                     duration = CacheUtils.Utils.MINUTE * 30
                 ) {
@@ -178,6 +178,9 @@ open class PrivacyProxyCall {
                     val p = manager.getPackageInfo(versionedPackage, flags)
                     val byte = ParcelableUtil.marshall(p)
                     Base64.encodeToString(byte, 0)
+                }
+                if("NameNotFoundException" == value){
+                    return null
                 }
                 val parcel = ParcelableUtil.unmarshall(Base64.decode(value, 0))
                 val pkg = PackageInfo.CREATOR.createFromParcel(parcel)
@@ -220,7 +223,7 @@ open class PrivacyProxyCall {
                 val value = CachePrivacyManager.Manager.loadWithTimeCache(
                     "getPackageInfo-$flags-${packageName}",
                     "getPackageInfo",
-                    "",
+                    "NameNotFoundException",
                     String::class,
                     duration = CacheUtils.Utils.MINUTE * 30
                 ) {
@@ -231,6 +234,9 @@ open class PrivacyProxyCall {
                     val p = manager.getPackageInfo(packageName, flags)
                     val byte = ParcelableUtil.marshall(p)
                     Base64.encodeToString(byte, 0)
+                }
+                if("NameNotFoundException" == value){
+                    return null
                 }
                 val parcel = ParcelableUtil.unmarshall(Base64.decode(value, 0))
                 val pkg = PackageInfo.CREATOR.createFromParcel(parcel)
@@ -791,8 +797,7 @@ open class PrivacyProxyCall {
                     "mac地址-getHardwareAddress",
                     "",
                     String::class,
-                    { manager.hardwareAddress.toString() },
-                ).toByteArray()
+                ) { manager.hardwareAddress.toString() }.toByteArray()
             }
         }
 
