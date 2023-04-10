@@ -107,6 +107,13 @@ class PrivacySentry {
             return mBuilder ?: null
         }
 
+        fun inDangerousState(): Boolean {
+            if (getBuilder()?.isVisitorModel() == true) {
+                return true
+            }
+            return !hasShowPrivacy()
+        }
+
         /**
          * 当前写入文件任务是否结束
          * @return Boolean
