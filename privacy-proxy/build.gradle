@@ -40,5 +40,3 @@ dependencies {
     implementation project(":hook-sentry")
     implementation project(path: ':privacy-annotation')
 }
-
-apply plugin: 'com.github.dcendents.android-maven'

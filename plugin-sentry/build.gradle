@@ -26,8 +26,6 @@ if (rootProject.ext.plugin_local_debug) {
             }
         }
     }
-} else {
-    apply plugin: 'com.github.dcendents.android-maven'
 }
 
 

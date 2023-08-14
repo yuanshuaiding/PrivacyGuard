@@ -684,7 +684,7 @@ open class PrivacyProxyCall {
         fun getLastKnownLocation(
             manager: LocationManager, provider: String
         ): Location? {
-            var key = "getLastKnownLocation"
+            val key = "getLastKnownLocation"
             if (PrivacySentry.Privacy.getBuilder()
                     ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
                     ?.isForbiddenAPI("getLastKnownLocation") == true
@@ -694,14 +694,14 @@ open class PrivacyProxyCall {
                 return null
             }
 
-            var locationStr = CachePrivacyManager.Manager.loadWithTimeCache(
+            val locationStr = CachePrivacyManager.Manager.loadWithTimeCache(
                 key,
                 "上一次的位置信息",
                 "",
                 String::class,
             ) { PrivacyUtil.Util.formatLocation(manager.getLastKnownLocation(provider)) }
 
-            var location: Location? = null
+            var location: Location?
             locationStr.also {
                 location = PrivacyUtil.Util.formatLocation(it)
             }
@@ -1053,6 +1053,64 @@ open class PrivacyProxyCall {
             ) {
                 PrivacyLog.i("getBrand Value")
                 Build.BRAND
+            }
+        }
+
+        // 拦截经纬度-getLatitude
+        @JvmStatic
+        @PrivacyMethodProxy(
+            originalClass = Location::class,
+            originalMethod = "getLatitude",
+            originalOpcode = MethodInvokeOpcode.INVOKEVIRTUAL
+        )
+        fun getLatitude(location: Location): Double {
+            if (PrivacySentry.Privacy.getBuilder()
+                    ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
+                    ?.isForbiddenAPI("getLatitude") == true
+            ) {
+                doFilePrinter("getLatitude", "经纬度latitude", bVisitorModel = true)
+                return 0.0
+            }
+
+            val key = "getLatitude"
+            doFilePrinter("getLatitude", "经纬度latitude")
+            return CachePrivacyManager.Manager.loadWithTimeCache(
+                key,
+                "getLatitude",
+                0.0,
+                Double::class,
+                duration = CacheUtils.Utils.MINUTE * 5
+            ) {
+                location.latitude
+            }
+        }
+
+        // 拦截经纬度-getLongitude
+        @JvmStatic
+        @PrivacyMethodProxy(
+            originalClass = Location::class,
+            originalMethod = "getLongitude",
+            originalOpcode = MethodInvokeOpcode.INVOKEVIRTUAL
+        )
+        fun getLongitude(location: Location): Double {
+            if (PrivacySentry.Privacy.getBuilder()
+                    ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
+                    ?.isForbiddenAPI("getLongitude") == true
+            ) {
+                doFilePrinter("getLongitude", "经纬度longitude", bVisitorModel = true)
+                return 0.0
+            }
+
+            val key = "getLongitude"
+            doFilePrinter("getLongitude", "经纬度longitude")
+            return CachePrivacyManager.Manager.loadWithTimeCache(
+                key,
+                "getLongitude",
+                0.0,
+                Double::class,
+                duration = CacheUtils.Utils.MINUTE * 5
+            ) {
+                location.longitude
             }
         }
     }
