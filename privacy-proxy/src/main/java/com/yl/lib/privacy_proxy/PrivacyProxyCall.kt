@@ -34,6 +34,7 @@ import com.yl.lib.sentry.hook.util.PrivacyProxyUtil.Util.doFilePrinter
 import com.yl.lib.sentry.hook.util.PrivacyUtil
 import java.io.File
 import java.net.Inet4Address
+import java.net.Inet6Address
 import java.net.InetAddress
 import java.net.NetworkInterface
 
@@ -899,6 +900,31 @@ open class PrivacyProxyCall {
             doFilePrinter(
                 key,
                 "ip地址-getHostAddress-${manager.hostName ?: ""} , address is ${address ?: ""}"
+            )
+            return address
+        }
+
+        @PrivacyMethodProxy(
+            originalClass = Inet6Address::class,
+            originalMethod = "getHostAddress",
+            originalOpcode = MethodInvokeOpcode.INVOKEVIRTUAL
+        )
+        @JvmStatic
+        fun getHostAddress(manager: Inet6Address): String? {
+            var key = "ip地址-getHostAddress-inet6"
+
+            if (PrivacySentry.Privacy.getBuilder()
+                    ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
+                    ?.isForbiddenAPI("getHostAddress") == true
+            ) {
+                doFilePrinter(key, "ip地址-getHostAddress-inet6", bVisitorModel = true)
+                return ""
+            }
+
+            var address = manager.hostAddress
+            doFilePrinter(
+                key,
+                "ip地址-getHostAddress-inet6-${manager.hostName ?: ""} , address is ${address ?: ""}"
             )
             return address
         }
