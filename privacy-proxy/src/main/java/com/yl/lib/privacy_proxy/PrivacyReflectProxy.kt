@@ -3,10 +3,12 @@ package com.yl.lib.privacy_proxy
 import android.bluetooth.BluetoothAdapter
 import android.net.wifi.WifiInfo
 import android.telephony.TelephonyManager
+import android.text.TextUtils
 import androidx.annotation.Keep
 import com.yl.lib.privacy_annotation.MethodInvokeOpcode
 import com.yl.lib.privacy_annotation.PrivacyClassProxy
 import com.yl.lib.privacy_annotation.PrivacyMethodProxy
+import com.yl.lib.sentry.hook.util.PrivacyProxyUtil
 import java.lang.reflect.Method
 import java.net.NetworkInterface
 
@@ -98,6 +100,24 @@ open class PrivacyReflectProxy {
                 if ("getAddress" == method.name && args.isEmpty()) {
                     return PrivacyProxyCall.Proxy.getAddress(obj)
                 }
+            }
+
+            if(TextUtils.equals(obj?.javaClass?.name,"android.os.SystemProperties")){
+                PrivacyProxyUtil.Util.doFilePrinter(
+                    "SystemProperties.get",
+                    "获取系统属性",
+                    bVisitorModel = false
+                )
+            }
+
+            //未拦截的反射，在此处打印
+            obj?.let {
+
+                PrivacyProxyUtil.Util.doFilePrinter(
+                    obj.javaClass.name,
+                    "未代理的方法：args=$args",
+                    bVisitorModel = false
+                )
             }
 
             return method.invoke(obj, *args)
