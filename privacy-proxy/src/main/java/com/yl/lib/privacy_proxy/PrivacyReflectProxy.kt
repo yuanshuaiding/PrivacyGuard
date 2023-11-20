@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothAdapter
 import android.net.wifi.WifiInfo
 import android.telephony.TelephonyManager
 import android.text.TextUtils
+import android.util.Log
 import androidx.annotation.Keep
 import com.yl.lib.privacy_annotation.MethodInvokeOpcode
 import com.yl.lib.privacy_annotation.PrivacyClassProxy
@@ -111,14 +112,11 @@ open class PrivacyReflectProxy {
             }
 
             //未拦截的反射，在此处打印
-            obj?.let {
-
-                PrivacyProxyUtil.Util.doFilePrinter(
-                    obj.javaClass.name,
-                    "未代理的方法：args=$args",
-                    bVisitorModel = false
-                )
-            }
+            PrivacyProxyUtil.Util.doFilePrinter(
+                obj?.javaClass?.name?:"null",
+                "未代理的方法${method.name}：args=$args",
+                bVisitorModel = true
+            )
 
             return method.invoke(obj, *args)
         }
