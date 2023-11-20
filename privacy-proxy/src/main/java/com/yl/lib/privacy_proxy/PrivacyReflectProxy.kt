@@ -25,7 +25,7 @@ open class PrivacyReflectProxy {
     @PrivacyClassProxy
     object ReflectProxy {
 
-        // 这个方法的注册放在了PrivacyProxyCall2中，提供了一个java注册的例子
+        //成员方法反射调用代理
         @PrivacyMethodProxy(
             originalClass = Method::class,
             originalMethod = "invoke",
@@ -39,8 +39,10 @@ open class PrivacyReflectProxy {
         ): Any? {
 
             //反射方法，在此处打印
-            Log.e("拦截反射方法",
-                "${obj?.javaClass?.name}未代理的方法${method.name}：args=$args")
+            Log.e(
+                "拦截反射方法",
+                "${obj?.javaClass?.name}未代理的方法${method.name}：args=$args"
+            )
 
             if (obj is WifiInfo) {
                 if ("getMacAddress" == method.name) {
@@ -108,7 +110,7 @@ open class PrivacyReflectProxy {
                 }
             }
 
-            if(TextUtils.equals(obj?.javaClass?.name,"android.os.SystemProperties")){
+            if (TextUtils.equals(obj?.javaClass?.name, "android.os.SystemProperties")) {
                 PrivacyProxyUtil.Util.doFilePrinter(
                     "SystemProperties.get",
                     "获取系统属性",
@@ -118,11 +120,37 @@ open class PrivacyReflectProxy {
 
             //未拦截的反射，在此处打印
             PrivacyProxyUtil.Util.doFilePrinter(
-                obj?.javaClass?.name?:"null",
+                obj?.javaClass?.name ?: "null",
                 "未代理的方法${method.name}：args=$args",
                 bVisitorModel = true
             )
 
+            return method.invoke(obj, *args)
+        }
+    }
+
+    @Keep
+    @PrivacyClassProxy
+    object ReflectProxyStatic {
+
+        //静态方法反射调用代理
+        @PrivacyMethodProxy(
+            originalClass = Method::class,
+            originalMethod = "invoke",
+            originalOpcode = MethodInvokeOpcode.INVOKESTATIC
+        )
+        @JvmStatic
+        fun invoke(
+            method: Method,
+            obj: Any?,
+            vararg args: Any?
+        ): Any? {
+
+            //反射方法，在此处打印
+            Log.e(
+                "拦截反射方法",
+                "${obj?.javaClass?.name}未代理的方法${method.name}：args=$args"
+            )
             return method.invoke(obj, *args)
         }
     }
