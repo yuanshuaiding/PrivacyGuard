@@ -37,6 +37,11 @@ open class PrivacyReflectProxy {
             obj: Any?,
             vararg args: Any?
         ): Any? {
+
+            //反射方法，在此处打印
+            Log.e("拦截反射方法",
+                "${obj?.javaClass?.name}未代理的方法${method.name}：args=$args")
+
             if (obj is WifiInfo) {
                 if ("getMacAddress" == method.name) {
                     if (args.isEmpty()) return PrivacyProxyCall.Proxy.getMacAddress(obj)
