@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothAdapter
 import android.content.*
 import android.content.ClipDescription.MIMETYPE_TEXT_PLAIN
 import android.content.pm.*
+import android.database.sqlite.SQLiteOpenHelper
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
@@ -1189,6 +1190,25 @@ open class PrivacyProxyCall {
 
             doFilePrinter("workEvent", "友盟SDK执行任务接口调用")
             protocol.workEvent(var1,var2?:0);
+        }
+        // 拦截友盟SDK相关方法-workEvent
+        @JvmStatic
+        @PrivacyMethodProxy(
+            originalClass = SQLiteOpenHelper::class,
+            originalMethod = "getWritableDatabase",
+            originalOpcode = MethodInvokeOpcode.INVOKEVIRTUAL
+        )
+        fun getWritableDatabase(dbHelper: SQLiteOpenHelper) {
+            if (PrivacySentry.Privacy.getBuilder()
+                    ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
+                    ?.isForbiddenAPI("getWritableDatabase") == true
+            ) {
+                doFilePrinter("getWritableDatabase", "获取可读写的数据库", bVisitorModel = true)
+                return
+            }
+
+            doFilePrinter("getWritableDatabase", "获取可读写的数据库")
+            dbHelper.writableDatabase
         }
     }
 }
