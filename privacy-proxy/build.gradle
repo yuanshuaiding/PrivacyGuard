@@ -38,7 +38,7 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.9.0'
     implementation 'com.alibaba:fastjson:2.0.19.android'
     // 友盟统计套件
-    implementation 'com.umeng.umsdk:common:9.5.6'
+    implementation 'com.umeng.umsdk:common:9.6.5'
     implementation project(":hook-sentry")
     implementation project(path: ':privacy-annotation')
 }
