@@ -22,6 +22,7 @@ import android.telephony.TelephonyManager
 import android.util.Base64
 import androidx.annotation.Keep
 import androidx.annotation.RequiresApi
+import com.umeng.commonsdk.utils.UMUtils
 import com.yl.lib.privacy_annotation.MethodInvokeOpcode
 import com.yl.lib.privacy_annotation.PrivacyClassProxy
 import com.yl.lib.privacy_annotation.PrivacyMethodProxy
@@ -1137,6 +1138,35 @@ open class PrivacyProxyCall {
                 duration = CacheUtils.Utils.MINUTE * 5
             ) {
                 location.longitude
+            }
+        }
+
+        //拦截友盟SDK相关方法
+        @JvmStatic
+        @PrivacyMethodProxy(
+            originalClass = UMUtils::class,
+            originalMethod = "getSystemProperty",
+            originalOpcode = MethodInvokeOpcode.INVOKESTATIC
+        )
+        fun getSystemProperty(v0:String?,v1:String?): String? {
+            if (PrivacySentry.Privacy.getBuilder()
+                    ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
+                    ?.isForbiddenAPI("getSystemProperty") == true
+            ) {
+                doFilePrinter("getSystemProperty", "友盟SDK获取系统属性：$v0,$v1", bVisitorModel = true)
+                return v1
+            }
+
+            val key = "getSystemProperty"
+            doFilePrinter("getSystemProperty", "友盟SDK获取系统属性")
+            return CachePrivacyManager.Manager.loadWithTimeCache(
+                key,
+                "友盟SDK获取系统属性",
+                "",
+                String::class,
+                duration = CacheUtils.Utils.MINUTE * 5
+            ) {
+                UMUtils.getSystemProperty(v0,v1)
             }
         }
     }
