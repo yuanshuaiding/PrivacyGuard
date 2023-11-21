@@ -10,7 +10,9 @@ import android.database.sqlite.SQLiteOpenHelper
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
+import android.net.ConnectivityManager
 import android.net.DhcpInfo
+import android.net.NetworkInfo
 import android.net.wifi.ScanResult
 import android.net.wifi.WifiConfiguration
 import android.net.wifi.WifiInfo
@@ -1143,6 +1145,59 @@ open class PrivacyProxyCall {
             }
         }
 
+        // 拦截网络状态-getActiveNetworkInfo
+        @JvmStatic
+        @PrivacyMethodProxy(
+            originalClass = ConnectivityManager::class,
+            originalMethod = "getActiveNetworkInfo",
+            originalOpcode = MethodInvokeOpcode.INVOKEVIRTUAL
+        )
+        fun getActiveNetworkInfo(connectivityManager: ConnectivityManager): NetworkInfo? {
+            if (PrivacySentry.Privacy.getBuilder()
+                    ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
+                    ?.isForbiddenAPI("getActiveNetworkInfo") == true
+            ) {
+                doFilePrinter("getActiveNetworkInfo", "获取网络状态对象", bVisitorModel = true)
+                return null
+            }
+
+            //增加缓存
+            try {
+                val value = CachePrivacyManager.Manager.loadWithTimeCache(
+                    "getActiveNetworkInfo",
+                    "getActiveNetworkInfo",
+                    "NoNetworkInfo",
+                    String::class,
+                    duration = CacheUtils.Utils.MINUTE * 15
+                ) {
+                    doFilePrinter(
+                        "getActiveNetworkInfo",
+                        methodDocumentDesc = "获取网络状态对象"
+                    )
+                    val p = connectivityManager.activeNetworkInfo
+                    val byte = p?.let { ParcelableUtil.marshall(it) }
+                    Base64.encodeToString(byte, 0)
+                }
+                if("NoNetworkInfo" == value){
+                    return null
+                }
+                val parcel = ParcelableUtil.unmarshall(Base64.decode(value, 0))
+                val networkInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    NetworkInfo.CREATOR.createFromParcel(parcel)
+                } else {
+                    connectivityManager.activeNetworkInfo
+                }
+                if (networkInfo != null) {
+                    PrivacyLog.i("getActiveNetworkInfo :成功从缓存获取对象")
+                    return networkInfo
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+
+           return connectivityManager.activeNetworkInfo
+        }
+
         //拦截友盟SDK相关方法-getSystemProperty
         @JvmStatic
         @PrivacyMethodProxy(
@@ -1159,17 +1214,8 @@ open class PrivacyProxyCall {
                 return v1
             }
 
-            val key = "getSystemProperty"
             doFilePrinter("getSystemProperty", "友盟SDK获取系统属性")
-            return CachePrivacyManager.Manager.loadWithTimeCache(
-                key,
-                "友盟SDK获取系统属性",
-                "",
-                String::class,
-                duration = CacheUtils.Utils.MINUTE * 5
-            ) {
-                UMUtils.getSystemProperty(v0,v1)
-            }
+            return UMUtils.getSystemProperty(v0,v1)
         }
 
         // 拦截友盟SDK相关方法-workEvent
