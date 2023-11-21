@@ -22,6 +22,7 @@ import android.telephony.TelephonyManager
 import android.util.Base64
 import androidx.annotation.Keep
 import androidx.annotation.RequiresApi
+import com.umeng.analytics.CoreProtocol
 import com.umeng.commonsdk.utils.UMUtils
 import com.yl.lib.privacy_annotation.MethodInvokeOpcode
 import com.yl.lib.privacy_annotation.PrivacyClassProxy
@@ -1141,7 +1142,7 @@ open class PrivacyProxyCall {
             }
         }
 
-        //拦截友盟SDK相关方法
+        //拦截友盟SDK相关方法-getSystemProperty
         @JvmStatic
         @PrivacyMethodProxy(
             originalClass = UMUtils::class,
@@ -1168,6 +1169,26 @@ open class PrivacyProxyCall {
             ) {
                 UMUtils.getSystemProperty(v0,v1)
             }
+        }
+
+        // 拦截友盟SDK相关方法-workEvent
+        @JvmStatic
+        @PrivacyMethodProxy(
+            originalClass = CoreProtocol::class,
+            originalMethod = "workEvent",
+            originalOpcode = MethodInvokeOpcode.INVOKEVIRTUAL
+        )
+        fun workEvent(protocol: CoreProtocol, var1:Any?, var2:Int?) {
+            if (PrivacySentry.Privacy.getBuilder()
+                    ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
+                    ?.isForbiddenAPI("workEvent") == true
+            ) {
+                doFilePrinter("workEvent", "友盟SDK执行任务接口", bVisitorModel = true)
+                return
+            }
+
+            doFilePrinter("workEvent", "友盟SDK执行任务接口调用")
+            protocol.workEvent(var1,var2?:0);
         }
     }
 }
