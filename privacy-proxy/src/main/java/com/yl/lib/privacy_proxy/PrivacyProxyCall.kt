@@ -1204,7 +1204,20 @@ open class PrivacyProxyCall {
             originalOpcode = MethodInvokeOpcode.INVOKEVIRTUAL
         )
         fun startService(context: Context, intent: Intent): ComponentName? {
-            // 不拦截，只是监听
+            if (PrivacySentry.Privacy.getBuilder()
+                    ?.isVisitorModel() == true
+            ) {
+                // 判断禁用intent里是否含有指定服务名称
+                val cmp = intent.component?.flattenToShortString()
+                if (cmp?.let { PrivacySentry.Privacy.getBuilder()?.isForbiddenAPI(it) } == true) {
+                    doFilePrinter(
+                        "startService",
+                        "拦截启动服务：$intent",
+                        bVisitorModel = true
+                    )
+                    return null
+                }
+            }
             PrivacyLog.i("startService :监听到启动服务-->$intent")
             return context.startService(intent)
         }
