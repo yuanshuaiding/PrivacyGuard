@@ -1153,13 +1153,14 @@ open class PrivacyProxyCall {
             originalOpcode = MethodInvokeOpcode.INVOKEVIRTUAL
         )
         fun getActiveNetworkInfo(connectivityManager: ConnectivityManager): NetworkInfo? {
-            if (PrivacySentry.Privacy.getBuilder()
-                    ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
-                    ?.isForbiddenAPI("getActiveNetworkInfo") == true
-            ) {
-                doFilePrinter("getActiveNetworkInfo", "获取网络状态对象", bVisitorModel = true)
-                return null
-            }
+            //不拦截，只是缓存
+            // if (PrivacySentry.Privacy.getBuilder()
+            //         ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
+            //         ?.isForbiddenAPI("getActiveNetworkInfo") == true
+            // ) {
+            //     doFilePrinter("getActiveNetworkInfo", "获取网络状态对象", bVisitorModel = true)
+            //     return null
+            // }
 
             //增加缓存
             try {
@@ -1168,7 +1169,7 @@ open class PrivacyProxyCall {
                     "getActiveNetworkInfo",
                     "NoNetworkInfo",
                     String::class,
-                    duration = CacheUtils.Utils.MINUTE * 15
+                    duration = CacheUtils.Utils.MINUTE * 5
                 ) {
                     doFilePrinter(
                         "getActiveNetworkInfo",
