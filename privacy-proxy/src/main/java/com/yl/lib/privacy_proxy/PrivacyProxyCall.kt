@@ -1166,7 +1166,7 @@ open class PrivacyProxyCall {
             try {
                 val value = CachePrivacyManager.Manager.loadWithTimeCache(
                     "getActiveNetworkInfo",
-                    "getActiveNetworkInfo",
+                    "获取网络状态对象",
                     "NoNetworkInfo",
                     String::class,
                     duration = CacheUtils.Utils.MINUTE * 5
@@ -1178,9 +1178,6 @@ open class PrivacyProxyCall {
                     val p = connectivityManager.activeNetworkInfo
                     val byte = p?.let { ParcelableUtil.marshall(it) }
                     Base64.encodeToString(byte, 0)
-                }
-                if("NoNetworkInfo" == value){
-                    return null
                 }
                 val parcel = ParcelableUtil.unmarshall(Base64.decode(value, 0))
                 val networkInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
