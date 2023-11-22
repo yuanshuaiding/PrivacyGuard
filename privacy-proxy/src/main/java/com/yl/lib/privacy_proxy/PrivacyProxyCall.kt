@@ -168,7 +168,7 @@ open class PrivacyProxyCall {
                 return null
             }
 
-            //增加缓存
+            // 增加缓存
             try {
                 val value = CachePrivacyManager.Manager.loadWithTimeCache(
                     "getPackageInfo-$flags-${versionedPackage.packageName}",
@@ -185,7 +185,7 @@ open class PrivacyProxyCall {
                     val byte = ParcelableUtil.marshall(p)
                     Base64.encodeToString(byte, 0)
                 }
-                if("NameNotFoundException" == value){
+                if ("NameNotFoundException" == value) {
                     return null
                 }
                 val parcel = ParcelableUtil.unmarshall(Base64.decode(value, 0))
@@ -224,7 +224,7 @@ open class PrivacyProxyCall {
                 return null
             }
 
-            //增加缓存
+            // 增加缓存
             try {
                 val value = CachePrivacyManager.Manager.loadWithTimeCache(
                     "getPackageInfo-$flags-${packageName}",
@@ -241,7 +241,7 @@ open class PrivacyProxyCall {
                     val byte = ParcelableUtil.marshall(p)
                     Base64.encodeToString(byte, 0)
                 }
-                if("NameNotFoundException" == value){
+                if ("NameNotFoundException" == value) {
                     return null
                 }
                 val parcel = ParcelableUtil.unmarshall(Base64.decode(value, 0))
@@ -349,7 +349,7 @@ open class PrivacyProxyCall {
                 legal = false
             }
 
-            //不指定包名，我们认为这个查询不合法
+            // 不指定包名，我们认为这个查询不合法
             if (!paramBuilder.contains("packageName")) {
                 legal = false
             }
@@ -1153,7 +1153,7 @@ open class PrivacyProxyCall {
             originalOpcode = MethodInvokeOpcode.INVOKEVIRTUAL
         )
         fun getActiveNetworkInfo(connectivityManager: ConnectivityManager): NetworkInfo? {
-            //不拦截，只是缓存
+            // 不拦截，只是缓存
             // if (PrivacySentry.Privacy.getBuilder()
             //         ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
             //         ?.isForbiddenAPI("getActiveNetworkInfo") == true
@@ -1162,7 +1162,7 @@ open class PrivacyProxyCall {
             //     return null
             // }
 
-            //增加缓存
+            // 增加缓存
             try {
                 val value = CachePrivacyManager.Manager.loadWithTimeCache(
                     "getActiveNetworkInfo",
@@ -1193,27 +1193,44 @@ open class PrivacyProxyCall {
                 e.printStackTrace()
             }
 
-           return connectivityManager.activeNetworkInfo
+            return connectivityManager.activeNetworkInfo
         }
 
-        //拦截友盟SDK相关方法-getSystemProperty
+        // 监听服务启动-startService
+        @JvmStatic
+        @PrivacyMethodProxy(
+            originalClass = Context::class,
+            originalMethod = "startService",
+            originalOpcode = MethodInvokeOpcode.INVOKEVIRTUAL
+        )
+        fun startService(context: Context, intent: Intent): ComponentName? {
+            // 不拦截，只是监听
+            PrivacyLog.i("startService :监听到启动服务-->$intent")
+            return context.startService(intent)
+        }
+
+        // 拦截友盟SDK相关方法-getSystemProperty
         @JvmStatic
         @PrivacyMethodProxy(
             originalClass = UMUtils::class,
             originalMethod = "getSystemProperty",
             originalOpcode = MethodInvokeOpcode.INVOKESTATIC
         )
-        fun getSystemProperty(v0:String?,v1:String?): String? {
+        fun getSystemProperty(v0: String?, v1: String?): String? {
             if (PrivacySentry.Privacy.getBuilder()
                     ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
                     ?.isForbiddenAPI("getSystemProperty") == true
             ) {
-                doFilePrinter("getSystemProperty", "友盟SDK获取系统属性：$v0,$v1", bVisitorModel = true)
+                doFilePrinter(
+                    "getSystemProperty",
+                    "友盟SDK获取系统属性：$v0,$v1",
+                    bVisitorModel = true
+                )
                 return v1
             }
 
             doFilePrinter("getSystemProperty", "友盟SDK获取系统属性")
-            return UMUtils.getSystemProperty(v0,v1)
+            return UMUtils.getSystemProperty(v0, v1)
         }
 
         // 拦截友盟SDK相关方法-workEvent
@@ -1223,7 +1240,7 @@ open class PrivacyProxyCall {
             originalMethod = "workEvent",
             originalOpcode = MethodInvokeOpcode.INVOKEVIRTUAL
         )
-        fun workEvent(protocol: CoreProtocol, var1:Any?, var2:Int?) {
+        fun workEvent(protocol: CoreProtocol, var1: Any?, var2: Int?) {
             if (PrivacySentry.Privacy.getBuilder()
                     ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
                     ?.isForbiddenAPI("workEvent") == true
@@ -1233,8 +1250,9 @@ open class PrivacyProxyCall {
             }
 
             doFilePrinter("workEvent", "友盟SDK执行任务接口调用")
-            protocol.workEvent(var1,var2?:0);
+            protocol.workEvent(var1, var2 ?: 0);
         }
+
         // 拦截友盟SDK相关方法-workEvent
         @JvmStatic
         @PrivacyMethodProxy(
