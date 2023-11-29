@@ -42,6 +42,7 @@ import java.net.Inet4Address
 import java.net.Inet6Address
 import java.net.InetAddress
 import java.net.NetworkInterface
+import java.util.concurrent.Executor
 
 /**
  * @author yulun
@@ -1220,6 +1221,72 @@ open class PrivacyProxyCall {
             }
             PrivacyLog.i("startService :监听到启动服务-->$intent")
             return context.startService(intent)
+        }
+
+        // 监听服务绑定-bindService
+        @JvmStatic
+        @PrivacyMethodProxy(
+            originalClass = Context::class,
+            originalMethod = "bindService",
+            originalOpcode = MethodInvokeOpcode.INVOKEVIRTUAL
+        )
+        fun bindService(
+            context: Context,
+            intent: Intent,
+            conn: ServiceConnection,
+            flags: Int
+        ): Boolean? {
+            if (PrivacySentry.Privacy.getBuilder()
+                    ?.isVisitorModel() == true
+            ) {
+                // 判断禁用intent里是否含有指定服务名称
+                val cmp = intent.component?.flattenToShortString()
+                if (cmp?.let { PrivacySentry.Privacy.getBuilder()?.isForbiddenAPI(it) } == true) {
+                    doFilePrinter(
+                        "startService",
+                        "拦截绑定服务：$intent",
+                        bVisitorModel = true
+                    )
+                    return null
+                }
+            }
+            PrivacyLog.i("startService :监听到绑定服务-->$intent")
+            return context.bindService(intent, conn, flags)
+        }
+
+        @JvmStatic
+        @PrivacyMethodProxy(
+            originalClass = Context::class,
+            originalMethod = "bindService",
+            originalOpcode = MethodInvokeOpcode.INVOKEVIRTUAL
+        )
+        fun bindService(
+            context: Context,
+            intent: Intent,
+            flags: Int,
+            executor: Executor,
+            conn: ServiceConnection
+        ): Boolean? {
+            if (PrivacySentry.Privacy.getBuilder()
+                    ?.isVisitorModel() == true
+            ) {
+                // 判断禁用intent里是否含有指定服务名称
+                val cmp = intent.component?.flattenToShortString()
+                if (cmp?.let { PrivacySentry.Privacy.getBuilder()?.isForbiddenAPI(it) } == true) {
+                    doFilePrinter(
+                        "startService",
+                        "拦截绑定服务：$intent",
+                        bVisitorModel = true
+                    )
+                    return null
+                }
+            }
+            PrivacyLog.i("startService :监听到绑定服务-->$intent")
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                context.bindService(intent, flags, executor, conn)
+            } else {
+                context.bindService(intent, conn, flags)
+            }
         }
 
         // 拦截友盟SDK相关方法-getSystemProperty
