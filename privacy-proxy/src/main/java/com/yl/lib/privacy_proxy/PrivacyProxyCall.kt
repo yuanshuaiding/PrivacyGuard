@@ -1,6 +1,7 @@
 package com.yl.lib.privacy_proxy
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.ActivityManager
 import android.bluetooth.BluetoothAdapter
 import android.content.*
@@ -25,6 +26,7 @@ import android.telephony.TelephonyManager
 import android.util.Base64
 import androidx.annotation.Keep
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
 import com.umeng.analytics.CoreProtocol
 import com.umeng.commonsdk.utils.UMUtils
 import com.yl.lib.privacy_annotation.MethodInvokeOpcode
@@ -1264,6 +1266,75 @@ open class PrivacyProxyCall {
         )
         fun bindService(
             context: Context,
+            intent: Intent,
+            flags: Int,
+            executor: Executor,
+            conn: ServiceConnection
+        ): Boolean? {
+            if (PrivacySentry.Privacy.getBuilder()
+                    ?.isVisitorModel() == true
+            ) {
+                // 判断禁用intent里是否含有指定服务名称
+                val cmp = intent.component?.flattenToShortString()
+                val act = intent.action
+                if (cmp?.let { PrivacySentry.Privacy.getBuilder()?.isForbiddenAPI(it) } == true
+                    || act?.let { PrivacySentry.Privacy.getBuilder()?.isForbiddenAPI(it)} == true) {
+                    doFilePrinter(
+                        "bindService",
+                        "拦截绑定服务：$intent",
+                        bVisitorModel = true
+                    )
+                    return null
+                }
+            }
+            PrivacyLog.i("bindService :监听到绑定服务-->$intent")
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                context.bindService(intent, flags, executor, conn)
+            } else {
+                context.bindService(intent, conn, flags)
+            }
+        }
+
+        @JvmStatic
+        @PrivacyMethodProxy(
+            originalClass = AppCompatActivity::class,
+            originalMethod = "bindService",
+            originalOpcode = MethodInvokeOpcode.INVOKEVIRTUAL
+        )
+        fun bindService(
+            context: AppCompatActivity,
+            intent: Intent,
+            conn: ServiceConnection,
+            flags: Int
+        ): Boolean? {
+            if (PrivacySentry.Privacy.getBuilder()
+                    ?.isVisitorModel() == true
+            ) {
+                // 判断禁用intent里是否含有指定服务名称
+                val cmp = intent.component?.flattenToShortString()
+                val act = intent.action
+                if (cmp?.let { PrivacySentry.Privacy.getBuilder()?.isForbiddenAPI(it) } == true
+                    || act?.let { PrivacySentry.Privacy.getBuilder()?.isForbiddenAPI(it)} == true) {
+                    doFilePrinter(
+                        "bindService",
+                        "拦截绑定服务：$intent",
+                        bVisitorModel = true
+                    )
+                    return null
+                }
+            }
+            PrivacyLog.i("bindService :监听到绑定服务-->$intent")
+            return context.bindService(intent, conn, flags)
+        }
+
+        @JvmStatic
+        @PrivacyMethodProxy(
+            originalClass = AppCompatActivity::class,
+            originalMethod = "bindService",
+            originalOpcode = MethodInvokeOpcode.INVOKEVIRTUAL
+        )
+        fun bindService(
+            context: AppCompatActivity,
             intent: Intent,
             flags: Int,
             executor: Executor,
