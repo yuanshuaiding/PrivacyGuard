@@ -1241,7 +1241,9 @@ open class PrivacyProxyCall {
             ) {
                 // 判断禁用intent里是否含有指定服务名称
                 val cmp = intent.component?.flattenToShortString()
-                if (cmp?.let { PrivacySentry.Privacy.getBuilder()?.isForbiddenAPI(it) } == true) {
+                val act = intent.action
+                if (cmp?.let { PrivacySentry.Privacy.getBuilder()?.isForbiddenAPI(it) } == true
+                    || act?.let { PrivacySentry.Privacy.getBuilder()?.isForbiddenAPI(it)} == true) {
                     doFilePrinter(
                         "bindService",
                         "拦截绑定服务：$intent",
@@ -1272,7 +1274,9 @@ open class PrivacyProxyCall {
             ) {
                 // 判断禁用intent里是否含有指定服务名称
                 val cmp = intent.component?.flattenToShortString()
-                if (cmp?.let { PrivacySentry.Privacy.getBuilder()?.isForbiddenAPI(it) } == true) {
+                val act = intent.action
+                if (cmp?.let { PrivacySentry.Privacy.getBuilder()?.isForbiddenAPI(it) } == true
+                    || act?.let { PrivacySentry.Privacy.getBuilder()?.isForbiddenAPI(it)} == true) {
                     doFilePrinter(
                         "bindService",
                         "拦截绑定服务：$intent",
