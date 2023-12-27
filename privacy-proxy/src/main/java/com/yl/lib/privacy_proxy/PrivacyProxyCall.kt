@@ -1060,6 +1060,7 @@ open class PrivacyProxyCall {
                     ?.isForbiddenAPI("getExternalStorageDirectory") == true
             ) {
                 doFilePrinter("getExternalStorageDirectory", key, bVisitorModel = true)
+                return null
             }
             synchronized(objectExternalStorageDirectoryLock) {
                 result = CachePrivacyManager.Manager.loadWithMemoryCache<File>(
