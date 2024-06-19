@@ -13,6 +13,7 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.net.ConnectivityManager
 import android.net.DhcpInfo
+import android.net.Network
 import android.net.NetworkInfo
 import android.net.wifi.ScanResult
 import android.net.wifi.WifiConfiguration
@@ -1198,6 +1199,57 @@ open class PrivacyProxyCall {
             }
 
             return connectivityManager.activeNetworkInfo
+        }
+
+        // 拦截网络状态-getActiveNetworkInfo
+        @JvmStatic
+        @PrivacyMethodProxy(
+            originalClass = ConnectivityManager::class,
+            originalMethod = "getActiveNetwork",
+            originalOpcode = MethodInvokeOpcode.INVOKEVIRTUAL
+        )
+        fun getActiveNetwork(connectivityManager: ConnectivityManager): Network? {
+            // 不拦截，只是缓存
+            // 增加缓存
+            try {
+                val value = CachePrivacyManager.Manager.loadWithTimeCache(
+                    "getActiveNetwork",
+                    "获取网络状态对象",
+                    "NoNetworkInfo",
+                    String::class,
+                    duration = CacheUtils.Utils.MINUTE * 5
+                ) {
+                    doFilePrinter(
+                        "getActiveNetwork",
+                        methodDocumentDesc = "获取网络状态对象"
+                    )
+                    val p = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        connectivityManager.activeNetwork
+                    } else {
+                        null
+                    }
+                    val byte = p?.let { ParcelableUtil.marshall(it) }
+                    Base64.encodeToString(byte, 0)
+                }
+                val parcel = ParcelableUtil.unmarshall(Base64.decode(value, 0))
+                val networkInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    Network.CREATOR.createFromParcel(parcel)
+                } else {
+                    null
+                }
+                if (networkInfo != null) {
+                    PrivacyLog.i("getActiveNetwork :成功从缓存获取对象")
+                    return networkInfo
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                connectivityManager.activeNetwork
+            } else {
+                null
+            }
         }
 
         // 监听服务启动-startService
