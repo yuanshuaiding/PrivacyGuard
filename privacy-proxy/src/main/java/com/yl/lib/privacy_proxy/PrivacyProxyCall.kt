@@ -1,7 +1,6 @@
 package com.yl.lib.privacy_proxy
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.ActivityManager
 import android.bluetooth.BluetoothAdapter
 import android.content.*
@@ -539,7 +538,7 @@ open class PrivacyProxyCall {
                 return ""
             }
 
-            var key = "getSSID"
+            val key = "getSSID"
             doFilePrinter("getSSID", "SSID")
             return CachePrivacyManager.Manager.loadWithTimeCache(
                 key,
@@ -548,7 +547,6 @@ open class PrivacyProxyCall {
                 String::class,
                 duration = CacheUtils.Utils.MINUTE * 5
             ) { manager.ssid }
-            return manager.ssid
         }
 
         /**
@@ -570,7 +568,7 @@ open class PrivacyProxyCall {
                 return ""
             }
 
-            var key = "getBSSID"
+            val key = "getBSSID"
             doFilePrinter("getBSSID", "getBSSID")
             return CachePrivacyManager.Manager.loadWithTimeCache(
                 key,
@@ -578,8 +576,7 @@ open class PrivacyProxyCall {
                 "",
                 String::class,
                 duration = CacheUtils.Utils.MINUTE * 5
-            ) { manager.ssid }
-            return manager.bssid
+            ) { manager.bssid }
         }
 
         /**
@@ -847,7 +844,7 @@ open class PrivacyProxyCall {
         )
         @JvmStatic
         fun getAddress(manager: Inet4Address): ByteArray? {
-            var key = "ip地址-getAddress"
+            val key = "ip地址-getAddress"
 
             if (PrivacySentry.Privacy.getBuilder()
                     ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
@@ -856,12 +853,22 @@ open class PrivacyProxyCall {
                 doFilePrinter(key, "ip地址-getAddress", bVisitorModel = true)
                 return ByteArray(1)
             }
-            var address = manager.address
-            doFilePrinter(
+            val value= CachePrivacyManager.Manager.loadWithTimeCache(
                 key,
-                "ip地址-getAddress-${manager.hostName ?: ""} , address is ${address ?: ""}"
-            )
-            return address
+                "Inet4Address-getAddress",
+                Base64.encodeToString(ByteArray(1),0),
+                String::class,
+                duration = CacheUtils.Utils.MINUTE * 1
+            ) {
+                val address = manager.address
+                doFilePrinter(
+                    key,
+                    "ip地址-Inet4Address-getAddress-${manager.hostName ?: ""} , address is ${address ?: ""}"
+                )
+                Base64.encodeToString(address ?: ByteArray(1),0)
+            }
+
+            return Base64.decode(value, 0)
         }
 
         @PrivacyMethodProxy(
@@ -871,7 +878,7 @@ open class PrivacyProxyCall {
         )
         @JvmStatic
         fun getAddress(manager: InetAddress): ByteArray? {
-            var key = "ip地址-getAddress"
+            val key = "ip地址-getAddress"
 
             if (PrivacySentry.Privacy.getBuilder()
                     ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
@@ -880,12 +887,23 @@ open class PrivacyProxyCall {
                 doFilePrinter(key, "ip地址-getAddress", bVisitorModel = true)
                 return ByteArray(1)
             }
-            var address = manager.address
-            doFilePrinter(
+            val value= CachePrivacyManager.Manager.loadWithTimeCache(
                 key,
-                "ip地址-getAddress-${manager.hostName ?: ""} , address is ${address ?: ""} "
-            )
-            return address
+                "InetAddress-getAddress",
+                Base64.encodeToString(ByteArray(1),0),
+                String::class,
+                duration = CacheUtils.Utils.MINUTE * 1
+            ) {
+                val address = manager.address
+                doFilePrinter(
+                    key,
+                    "ip地址-getAddress-${manager.hostName ?: ""} , address is ${address ?: ""}"
+                )
+                Base64.encodeToString(address ?: ByteArray(1),0)
+            }
+
+
+            return Base64.decode(value, 0)
         }
 
         @PrivacyMethodProxy(
@@ -895,7 +913,7 @@ open class PrivacyProxyCall {
         )
         @JvmStatic
         fun getHostAddress(manager: Inet4Address): String? {
-            var key = "ip地址-getHostAddress"
+            val key = "ip地址-getHostAddress"
 
             if (PrivacySentry.Privacy.getBuilder()
                     ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
@@ -905,12 +923,21 @@ open class PrivacyProxyCall {
                 return ""
             }
 
-            var address = manager.hostAddress
-            doFilePrinter(
+            return CachePrivacyManager.Manager.loadWithTimeCache(
                 key,
-                "ip地址-getHostAddress-${manager.hostName ?: ""} , address is ${address ?: ""}"
-            )
-            return address
+                "Inet4Address-getHostAddress",
+                "",
+                String::class,
+                duration = CacheUtils.Utils.MINUTE * 1
+            ) {
+                val address = manager.hostAddress
+                doFilePrinter(
+                    key,
+                    "ip地址-getHostAddress-${manager.hostName ?: ""} , address is ${address ?: ""}"
+                )
+                address ?: ""
+            }
+
         }
 
         @PrivacyMethodProxy(
@@ -920,7 +947,7 @@ open class PrivacyProxyCall {
         )
         @JvmStatic
         fun getHostAddress(manager: Inet6Address): String? {
-            var key = "ip地址-getHostAddress-inet6"
+            val key = "ip地址-getHostAddress-inet6"
 
             if (PrivacySentry.Privacy.getBuilder()
                     ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
@@ -930,12 +957,20 @@ open class PrivacyProxyCall {
                 return ""
             }
 
-            var address = manager.hostAddress
-            doFilePrinter(
+            return CachePrivacyManager.Manager.loadWithTimeCache(
                 key,
-                "ip地址-getHostAddress-inet6-${manager.hostName ?: ""} , address is ${address ?: ""}"
-            )
-            return address
+                "Inet6Address-getHostAddress",
+                "",
+                String::class,
+                duration = CacheUtils.Utils.MINUTE * 1
+            ) {
+                val address = manager.hostAddress
+                doFilePrinter(
+                    key,
+                    "ip地址-getHostAddress-inet6-${manager.hostName ?: ""} , address is ${address ?: ""}"
+                )
+                address ?: ""
+            }
         }
 
         @PrivacyMethodProxy(
@@ -945,7 +980,7 @@ open class PrivacyProxyCall {
         )
         @JvmStatic
         fun getHostAddress(manager: InetAddress): String? {
-            var key = "ip地址-getHostAddress"
+            val key = "ip地址-getHostAddress"
 
             if (PrivacySentry.Privacy.getBuilder()
                     ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
@@ -955,12 +990,21 @@ open class PrivacyProxyCall {
                 return ""
             }
 
-            var address = manager.hostAddress
-            doFilePrinter(
+            return CachePrivacyManager.Manager.loadWithTimeCache(
                 key,
-                "ip地址-getHostAddress-${manager.hostName ?: ""} , address is ${address ?: ""}"
-            )
-            return address
+                "InetAddress-getHostAddress",
+                "",
+                String::class,
+                duration = CacheUtils.Utils.MINUTE * 1
+            ) {
+                val address = manager.hostAddress
+                doFilePrinter(
+                    key,
+                    "ip地址-getHostAddress-${manager.hostName ?: ""} , address is ${address ?: ""}"
+                )
+                address ?: ""
+            }
+
         }
 
         @PrivacyMethodProxy(
@@ -1298,7 +1342,9 @@ open class PrivacyProxyCall {
                 val cmp = intent.component?.flattenToShortString()
                 val act = intent.action
                 if (cmp?.let { PrivacySentry.Privacy.getBuilder()?.isForbiddenAPI(it) } == true
-                    || act?.let { PrivacySentry.Privacy.getBuilder()?.isForbiddenAPI(it)} == true) {
+                    || act?.let {
+                        PrivacySentry.Privacy.getBuilder()?.isForbiddenAPI(it)
+                    } == true) {
                     doFilePrinter(
                         "bindService",
                         "拦截绑定服务：$intent",
@@ -1331,7 +1377,9 @@ open class PrivacyProxyCall {
                 val cmp = intent.component?.flattenToShortString()
                 val act = intent.action
                 if (cmp?.let { PrivacySentry.Privacy.getBuilder()?.isForbiddenAPI(it) } == true
-                    || act?.let { PrivacySentry.Privacy.getBuilder()?.isForbiddenAPI(it)} == true) {
+                    || act?.let {
+                        PrivacySentry.Privacy.getBuilder()?.isForbiddenAPI(it)
+                    } == true) {
                     doFilePrinter(
                         "bindService",
                         "拦截绑定服务：$intent",
@@ -1367,7 +1415,9 @@ open class PrivacyProxyCall {
                 val cmp = intent.component?.flattenToShortString()
                 val act = intent.action
                 if (cmp?.let { PrivacySentry.Privacy.getBuilder()?.isForbiddenAPI(it) } == true
-                    || act?.let { PrivacySentry.Privacy.getBuilder()?.isForbiddenAPI(it)} == true) {
+                    || act?.let {
+                        PrivacySentry.Privacy.getBuilder()?.isForbiddenAPI(it)
+                    } == true) {
                     doFilePrinter(
                         "bindService",
                         "拦截绑定服务：$intent",
@@ -1400,7 +1450,9 @@ open class PrivacyProxyCall {
                 val cmp = intent.component?.flattenToShortString()
                 val act = intent.action
                 if (cmp?.let { PrivacySentry.Privacy.getBuilder()?.isForbiddenAPI(it) } == true
-                    || act?.let { PrivacySentry.Privacy.getBuilder()?.isForbiddenAPI(it)} == true) {
+                    || act?.let {
+                        PrivacySentry.Privacy.getBuilder()?.isForbiddenAPI(it)
+                    } == true) {
                     doFilePrinter(
                         "bindService",
                         "拦截绑定服务：$intent",
