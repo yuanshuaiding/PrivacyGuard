@@ -922,22 +922,22 @@ open class PrivacyProxyCall {
                 doFilePrinter(key, "ip地址-getHostAddress", bVisitorModel = true)
                 return ""
             }
-
-            return CachePrivacyManager.Manager.loadWithTimeCache(
-                key,
-                "Inet4Address-getHostAddress",
-                "",
-                String::class,
-                duration = CacheUtils.Utils.MINUTE * 1
-            ) {
-                val address = manager.hostAddress
-                doFilePrinter(
+            synchronized(objectMacLock) {
+                return CachePrivacyManager.Manager.loadWithTimeCache(
                     key,
-                    "ip地址-getHostAddress-${manager.hostName ?: ""} , address is ${address ?: ""}"
-                )
-                address ?: ""
+                    "Inet4Address-getHostAddress",
+                    "",
+                    String::class,
+                    duration = CacheUtils.Utils.MINUTE * 1
+                ) {
+                    val address = manager.hostAddress
+                    doFilePrinter(
+                        key,
+                        "ip地址-Inet4Address-getHostAddress-${manager.hostName ?: ""} , address is ${address ?: ""}"
+                    )
+                    address ?: ""
+                }
             }
-
         }
 
         @PrivacyMethodProxy(
@@ -956,20 +956,21 @@ open class PrivacyProxyCall {
                 doFilePrinter(key, "ip地址-getHostAddress-inet6", bVisitorModel = true)
                 return ""
             }
-
-            return CachePrivacyManager.Manager.loadWithTimeCache(
-                key,
-                "Inet6Address-getHostAddress",
-                "",
-                String::class,
-                duration = CacheUtils.Utils.MINUTE * 1
-            ) {
-                val address = manager.hostAddress
-                doFilePrinter(
+            synchronized(objectMacLock){
+                return CachePrivacyManager.Manager.loadWithTimeCache(
                     key,
-                    "ip地址-getHostAddress-inet6-${manager.hostName ?: ""} , address is ${address ?: ""}"
-                )
-                address ?: ""
+                    "Inet6Address-getHostAddress",
+                    "",
+                    String::class,
+                    duration = CacheUtils.Utils.MINUTE * 1
+                ) {
+                    val address = manager.hostAddress
+                    doFilePrinter(
+                        key,
+                        "ip地址-Inet6Address-getHostAddress-${manager.hostName ?: ""} , address is ${address ?: ""}"
+                    )
+                    address ?: ""
+                }
             }
         }
 
@@ -989,22 +990,22 @@ open class PrivacyProxyCall {
                 doFilePrinter(key, "ip地址-getHostAddress", bVisitorModel = true)
                 return ""
             }
-
-            return CachePrivacyManager.Manager.loadWithTimeCache(
-                key,
-                "InetAddress-getHostAddress",
-                "",
-                String::class,
-                duration = CacheUtils.Utils.MINUTE * 1
-            ) {
-                val address = manager.hostAddress
-                doFilePrinter(
+            synchronized(objectMacLock) {
+                return CachePrivacyManager.Manager.loadWithTimeCache(
                     key,
-                    "ip地址-getHostAddress-${manager.hostName ?: ""} , address is ${address ?: ""}"
-                )
-                address ?: ""
+                    "InetAddress-getHostAddress",
+                    "",
+                    String::class,
+                    duration = CacheUtils.Utils.MINUTE * 1
+                ) {
+                    val address = manager.hostAddress
+                    doFilePrinter(
+                        key,
+                        "ip地址-InetAddress-getHostAddress-${manager.hostName ?: ""} , address is ${address ?: ""}"
+                    )
+                    address ?: ""
+                }
             }
-
         }
 
         @PrivacyMethodProxy(
