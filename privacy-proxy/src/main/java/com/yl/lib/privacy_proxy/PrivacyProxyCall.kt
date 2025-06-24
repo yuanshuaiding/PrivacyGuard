@@ -864,7 +864,7 @@ open class PrivacyProxyCall {
                     val address = manager.address
                     doFilePrinter(
                         key,
-                        "ip地址-Inet4Address-getAddress-${manager.hostName ?: ""} , address is ${address ?: ""}"
+                        "隐私API获取-Inet4Address-getAddress , address is ${address ?: ""}"
                     )
                     Base64.encodeToString(address ?: ByteArray(1),0)
                 }
@@ -900,7 +900,7 @@ open class PrivacyProxyCall {
                     val address = manager.address
                     doFilePrinter(
                         key,
-                        "ip地址-InetAddress-getAddress-${manager.hostName ?: ""} , address is ${address ?: ""}"
+                        "隐私API获取-InetAddress-getAddress , address is ${address ?: ""}"
                     )
                     Base64.encodeToString(address ?: ByteArray(1), 0)
                 }
@@ -937,7 +937,7 @@ open class PrivacyProxyCall {
                     val address = manager.hostAddress
                     doFilePrinter(
                         key,
-                        "ip地址-Inet4Address-getHostAddress-${manager.hostName ?: ""} , address is ${address ?: ""}"
+                        "隐私API获取-Inet4Address-getHostAddress , address is ${address ?: ""}"
                     )
                     address ?: ""
                 }
@@ -971,7 +971,7 @@ open class PrivacyProxyCall {
                     val address = manager.hostAddress
                     doFilePrinter(
                         key,
-                        "ip地址-Inet6Address-getHostAddress-${manager.hostName ?: ""} , address is ${address ?: ""}"
+                        "隐私API获取-Inet6Address-getHostAddress , address is ${address ?: ""}"
                     )
                     address ?: ""
                 }
@@ -1005,7 +1005,7 @@ open class PrivacyProxyCall {
                     val address = manager.hostAddress
                     doFilePrinter(
                         key,
-                        "ip地址-InetAddress-getHostAddress-${manager.hostName ?: ""} , address is ${address ?: ""}"
+                        "隐私API获取-InetAddress-getHostAddress , address is ${address ?: ""}"
                     )
                     address ?: ""
                 }
