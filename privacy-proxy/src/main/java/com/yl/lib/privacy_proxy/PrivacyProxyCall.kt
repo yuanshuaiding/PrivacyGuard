@@ -844,31 +844,33 @@ open class PrivacyProxyCall {
         )
         @JvmStatic
         fun getAddress(manager: Inet4Address): ByteArray? {
-            val key = "ip地址-getAddress"
+            val key = "Inet4Address-getAddress"
 
             if (PrivacySentry.Privacy.getBuilder()
                     ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
                     ?.isForbiddenAPI("getAddress") == true
             ) {
-                doFilePrinter(key, "ip地址-getAddress", bVisitorModel = true)
+                doFilePrinter(key, "Inet4Address-ip地址-getAddress", bVisitorModel = true)
                 return ByteArray(1)
             }
-            val value= CachePrivacyManager.Manager.loadWithTimeCache(
-                key,
-                "Inet4Address-getAddress",
-                Base64.encodeToString(ByteArray(1),0),
-                String::class,
-                duration = CacheUtils.Utils.MINUTE * 1
-            ) {
-                val address = manager.address
-                doFilePrinter(
+            synchronized(objectMacLock) {
+                val value= CachePrivacyManager.Manager.loadWithTimeCache(
                     key,
-                    "ip地址-Inet4Address-getAddress-${manager.hostName ?: ""} , address is ${address ?: ""}"
-                )
-                Base64.encodeToString(address ?: ByteArray(1),0)
-            }
+                    "Inet4Address-ip地址-getAddress",
+                    Base64.encodeToString(ByteArray(1),0),
+                    String::class,
+                    duration = CacheUtils.Utils.MINUTE * 2
+                ) {
+                    val address = manager.address
+                    doFilePrinter(
+                        key,
+                        "ip地址-Inet4Address-getAddress-${manager.hostName ?: ""} , address is ${address ?: ""}"
+                    )
+                    Base64.encodeToString(address ?: ByteArray(1),0)
+                }
 
-            return Base64.decode(value, 0)
+                return Base64.decode(value, 0)
+            }
         }
 
         @PrivacyMethodProxy(
@@ -878,7 +880,7 @@ open class PrivacyProxyCall {
         )
         @JvmStatic
         fun getAddress(manager: InetAddress): ByteArray? {
-            val key = "ip地址-getAddress"
+            val key = "InetAddress-getAddress"
 
             if (PrivacySentry.Privacy.getBuilder()
                     ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
@@ -887,23 +889,25 @@ open class PrivacyProxyCall {
                 doFilePrinter(key, "ip地址-getAddress", bVisitorModel = true)
                 return ByteArray(1)
             }
-            val value= CachePrivacyManager.Manager.loadWithTimeCache(
-                key,
-                "InetAddress-getAddress",
-                Base64.encodeToString(ByteArray(1),0),
-                String::class,
-                duration = CacheUtils.Utils.MINUTE * 1
-            ) {
-                val address = manager.address
-                doFilePrinter(
+            synchronized(objectMacLock) {
+                val value = CachePrivacyManager.Manager.loadWithTimeCache(
                     key,
-                    "ip地址-getAddress-${manager.hostName ?: ""} , address is ${address ?: ""}"
-                )
-                Base64.encodeToString(address ?: ByteArray(1),0)
+                    "InetAddress-ip地址-getAddress",
+                    Base64.encodeToString(ByteArray(1), 0),
+                    String::class,
+                    duration = CacheUtils.Utils.MINUTE * 2
+                ) {
+                    val address = manager.address
+                    doFilePrinter(
+                        key,
+                        "ip地址-InetAddress-getAddress-${manager.hostName ?: ""} , address is ${address ?: ""}"
+                    )
+                    Base64.encodeToString(address ?: ByteArray(1), 0)
+                }
+
+
+                return Base64.decode(value, 0)
             }
-
-
-            return Base64.decode(value, 0)
         }
 
         @PrivacyMethodProxy(
@@ -913,22 +917,22 @@ open class PrivacyProxyCall {
         )
         @JvmStatic
         fun getHostAddress(manager: Inet4Address): String? {
-            val key = "ip地址-getHostAddress"
+            val key = "Inet4Address-getHostAddress"
 
             if (PrivacySentry.Privacy.getBuilder()
                     ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
                     ?.isForbiddenAPI("getHostAddress") == true
             ) {
-                doFilePrinter(key, "ip地址-getHostAddress", bVisitorModel = true)
+                doFilePrinter(key, "Inet4Address-ip地址-getHostAddress", bVisitorModel = true)
                 return ""
             }
             synchronized(objectMacLock) {
                 return CachePrivacyManager.Manager.loadWithTimeCache(
                     key,
-                    "Inet4Address-getHostAddress",
+                    "Inet4Address-ip地址-getHostAddress",
                     "",
                     String::class,
-                    duration = CacheUtils.Utils.MINUTE * 1
+                    duration = CacheUtils.Utils.MINUTE * 2
                 ) {
                     val address = manager.hostAddress
                     doFilePrinter(
@@ -947,22 +951,22 @@ open class PrivacyProxyCall {
         )
         @JvmStatic
         fun getHostAddress(manager: Inet6Address): String? {
-            val key = "ip地址-getHostAddress-inet6"
+            val key = "Inet6Address-getHostAddress"
 
             if (PrivacySentry.Privacy.getBuilder()
                     ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
                     ?.isForbiddenAPI("getHostAddress") == true
             ) {
-                doFilePrinter(key, "ip地址-getHostAddress-inet6", bVisitorModel = true)
+                doFilePrinter(key, "Inet6Address-ip地址-getHostAddress", bVisitorModel = true)
                 return ""
             }
             synchronized(objectMacLock){
                 return CachePrivacyManager.Manager.loadWithTimeCache(
                     key,
-                    "Inet6Address-getHostAddress",
+                    "Inet6Address-ip地址-getHostAddress",
                     "",
                     String::class,
-                    duration = CacheUtils.Utils.MINUTE * 1
+                    duration = CacheUtils.Utils.MINUTE * 2
                 ) {
                     val address = manager.hostAddress
                     doFilePrinter(
@@ -981,22 +985,22 @@ open class PrivacyProxyCall {
         )
         @JvmStatic
         fun getHostAddress(manager: InetAddress): String? {
-            val key = "ip地址-getHostAddress"
+            val key = "InetAddress-getHostAddress"
 
             if (PrivacySentry.Privacy.getBuilder()
                     ?.isVisitorModel() == true || PrivacySentry.Privacy.getBuilder()
                     ?.isForbiddenAPI("getHostAddress") == true
             ) {
-                doFilePrinter(key, "ip地址-getHostAddress", bVisitorModel = true)
+                doFilePrinter(key, "InetAddress-ip地址-getHostAddress", bVisitorModel = true)
                 return ""
             }
             synchronized(objectMacLock) {
                 return CachePrivacyManager.Manager.loadWithTimeCache(
                     key,
-                    "InetAddress-getHostAddress",
+                    "InetAddress-ip地址-getHostAddress",
                     "",
                     String::class,
-                    duration = CacheUtils.Utils.MINUTE * 1
+                    duration = CacheUtils.Utils.MINUTE * 2
                 ) {
                     val address = manager.hostAddress
                     doFilePrinter(
