@@ -539,14 +539,18 @@ open class PrivacyProxyCall {
             }
 
             val key = "getSSID"
-            doFilePrinter("getSSID", "SSID")
-            return CachePrivacyManager.Manager.loadWithTimeCache(
-                key,
-                "getSSID",
-                "",
-                String::class,
-                duration = CacheUtils.Utils.MINUTE * 5
-            ) { manager.ssid }
+            synchronized(objectSSID) {
+                return CachePrivacyManager.Manager.loadWithTimeCache(
+                    key,
+                    "getSSID",
+                    "",
+                    String::class,
+                    duration = CacheUtils.Utils.MINUTE * 5
+                ) {
+                    doFilePrinter(key,"隐私API获取-getSSID", "getSSID")
+                    manager.ssid
+                }
+            }
         }
 
         /**
@@ -569,14 +573,18 @@ open class PrivacyProxyCall {
             }
 
             val key = "getBSSID"
-            doFilePrinter("getBSSID", "getBSSID")
-            return CachePrivacyManager.Manager.loadWithTimeCache(
-                key,
-                "getBSSID",
-                "",
-                String::class,
-                duration = CacheUtils.Utils.MINUTE * 5
-            ) { manager.bssid }
+            synchronized(objectBSSID) {
+                return CachePrivacyManager.Manager.loadWithTimeCache(
+                    key,
+                    "getBSSID",
+                    "",
+                    String::class,
+                    duration = CacheUtils.Utils.MINUTE * 5
+                ) {
+                    doFilePrinter(key,"隐私API获取-getBSSID", "getBSSID")
+                    manager.bssid
+                }
+            }
         }
 
         /**
@@ -743,6 +751,8 @@ open class PrivacyProxyCall {
         var objectSNLock = Object()
         var objectAndroidIdLock = Object()
         var objectExternalStorageDirectoryLock = Object()
+        var objectSSID = Object()
+        var objectBSSID = Object()
 
 
         @PrivacyMethodProxy(
